@@ -27,6 +27,72 @@ int isKeyword(string s){
 	return 0;
 }
 
+static vector<string> operators2 = {
+	"||",
+	"&&",
+	"==",
+	"!=",
+	"<=",
+	">=",
+	"++",
+	"--",
+	"->"
+};
+
+int isOperator2(string s){
+	for(unsigned int i = 0; i < operators2.size(); i++){
+		if(s == operators2[i]){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+//set of characters that could be a operator1 or operator2
+static vector<char> operators00 = {
+	'<',
+	'>',
+	'!',
+	'&',
+	'=',
+	'+',
+	'-'
+};
+
+int isOperator00(char c){
+	for(unsigned int i = 0; i < operators00.size(); i++){
+		if(c == operators00[i]){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static vector<char> operators1 = {
+	'*',
+	'/',
+	'%',
+	'.',
+	'(',
+	')',
+	'[',
+	']',
+	'{',
+	'}',
+	';',
+	':',
+	','
+};
+
+int isOperator1(char c){
+	for(unsigned int i = 0; i < operators1.size(); i++){
+		if(c == operators1[i]){
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int isignored(char character){
 	switch(character){
 		case ' ':
@@ -44,6 +110,8 @@ int isignored(char character){
 int lexan(string& lexbuf){
 
 	char input = cin.peek();
+	char cbuff;
+	string opbuff;
 
 	while(!cin.eof()){
 
@@ -65,9 +133,46 @@ int lexan(string& lexbuf){
 				input = cin.peek();
 			} while(isdigit(input));
 
-			return INTEGER;
+			if(input != '.'){
+				return INTEGER;
+			}
+			else{
+				//I am guaranteed a digit here in a well-formed program.
+				do {
+					lexbuf += input;
+					cin.get();
+					input = cin.peek();
+				} while(isdigit(input));
 
-			//Check for a period immediately afterwards
+				//if = real
+				if(input != 'e' && input != 'E'){
+					return REAL;
+				}
+				//else = real with exponent:
+				else{
+					
+					lexbuf += input;
+					cin.get();
+					input = cin.peek();
+
+					if(input == '+' || input == '-'){
+						lexbuf += input;
+						cin.get();
+						input = cin.peek();
+					}
+
+					//I can assume (given well-formed program) that the next input will be a digit. Get the rest of those and then return real.
+					do {
+						lexbuf += input;
+						cin.get();
+						input = cin.peek();
+					} while(isdigit(input));
+
+					return REAL;
+
+				}
+
+			}
 			//Check for an [eE] immediately afterwards
 		}
 
@@ -113,6 +218,71 @@ int lexan(string& lexbuf){
 			return STRING;
 		}
 
+		//handle comments
+		if(input == '/'){
+			cin.get();
+			input = cin.peek();
+
+			if(input == '*'){
+				do {
+commentLoop:
+					cin.get();
+					input = cin.peek();
+				} while(input != '*');
+
+				//add the start to the input, look at the next char
+				cin.get();
+				input = cin.peek();
+				//if its anything but the / char, send it back into the do-while loop (logic preserved)
+				if(input != '/'){
+					goto commentLoop;
+				}
+
+				//removes / from cin
+				cin.get();
+				input = cin.peek();
+
+			}
+			else{
+				cin.putback('/');
+				input = '/';
+			}
+		}
+
+		//handle operators
+		if(isOperator1(input)){
+			lexbuf += input;
+			cin.get();
+			input = cin.peek();
+
+			return OPERATOR;
+		}
+
+		//Ambiguous operator; could be 1 or two chars long
+		if(isOperator00(input)){
+			cbuff = input;
+			cin.get();
+			input = cin.peek();
+
+			opbuff += cbuff;
+			opbuff += input;
+
+			if(isOperator2(opbuff)){
+				lexbuf += opbuff;
+				cin.get();
+				input = cin.peek();
+				return OPERATOR;
+			}
+			else{
+				lexbuf += cbuff;
+				return OPERATOR;
+			}
+
+		}
+		
+		//What should I do with illegal characters?
+		cin.get();
+		input = cin.peek();
 
 	}
 
