@@ -28,7 +28,6 @@ int isKeyword(string s){
 }
 
 int isignored(char character){
-
 	switch(character){
 		case ' ':
 		case '\t':
@@ -40,7 +39,6 @@ int isignored(char character){
 		default:
 			return 0;
 	}
-
 }
 
 int lexan(string& lexbuf){
@@ -85,7 +83,6 @@ int lexan(string& lexbuf){
 
 		//handle identifiers OR keywords
 		if(isalpha(input)){
-
 			do {
 				lexbuf += input;
 				cin.get();
@@ -98,7 +95,22 @@ int lexan(string& lexbuf){
 			else{
 				return ID;
 			}
+		}
 
+		//handle strings
+		if(input == '"'){
+			do {
+				lexbuf += input;
+				cin.get();
+				input = cin.peek();
+			} while(input != '"');
+			
+			//add the second "
+			lexbuf += input;
+			cin.get();
+			input = cin.peek();
+
+			return STRING;
 		}
 
 
@@ -113,8 +125,6 @@ int main()
 {
     int token;
     string lexbuf, type;
-
-	lexbuf = "    123    \r _982 auto";
 
     while ((token = lexan(lexbuf)) != DONE) {
 	switch(token) {
