@@ -1,21 +1,25 @@
-
 #include <cctype>
 #include <iostream>
+#include <vector>
 #include <string>
 
 using namespace std;
 
-static string keywords[] = {
+enum {
+    KEYWORD, ID, INTEGER, REAL, STRING, OPERATOR, DONE,
+};
+
+static std::vector<std::string> keywords = {
 	"auto", "break", "case", "char", "const", 
 	"continue", "default", "do", "double", "else", "enum", 
 	"extern", "float", "for", "goto", "if", "int", "long",
 	"register", "return", "short", "signed", "sizeof", 
 	"static", "struct", "switch", "typedef", "union", 
 	"unsigned", "void", "volatile", "while"
-}
+};
 
 int isKeyword(string s){
-	for(i = 0; i < keywords.size(); i++){
+	for(unsigned int i = 0; i < keywords.size(); i++){
 		if(s == keywords[i]){
 			return 1;
 		}
@@ -45,7 +49,7 @@ int lexan(string& lexbuf){
 
 	while(!cin.eof()){
 
-		lexbuf.clear()
+		lexbuf.clear();
 
 		//handle whitespace or otherwise ignored characters
 		if(isignored(input)){
@@ -104,10 +108,45 @@ int lexan(string& lexbuf){
 
 }
 
-int main(){
 
-	int myout = isignored(' ');
+int main()
+{
+    int token;
+    string lexbuf, type;
 
-	printf("%d",myout);
+	lexbuf = "    123    \r _982 auto";
 
+    while ((token = lexan(lexbuf)) != DONE) {
+	switch(token) {
+	case ID:
+	    type = "identifier";
+	    break;
+
+	case KEYWORD:
+	    type = "keyword";
+	    break;
+
+	case INTEGER:
+	    type = "integer";
+	    break;
+
+	case REAL:
+	    type = "real";
+	    break;
+
+	case STRING:
+	    type = "string";
+	    break;
+
+	case OPERATOR:
+	    type = "operator";
+	    break;
+	}
+
+	cout << type << ":" << lexbuf << endl;
+    }
+
+    return 0;
 }
+
+
