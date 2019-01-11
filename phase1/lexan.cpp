@@ -182,7 +182,7 @@ int lexan(string& lexbuf){
 				lexbuf += input;
 				cin.get();
 				input = cin.peek();
-			} while( input == ' ' || isalpha(input) || isdigit(input));
+			} while( input == ' ' || isalpha(input) || isdigit(input) || input == '_'); 
 			return ID;
 		}
 
@@ -219,6 +219,11 @@ int lexan(string& lexbuf){
 		}
 
 		//handle comments
+		//Currently there's an issue with:
+		// "/***/ auto"
+		//vs
+		// "/**/ auto"
+		
 		if(input == '/'){
 			cin.get();
 			input = cin.peek();
