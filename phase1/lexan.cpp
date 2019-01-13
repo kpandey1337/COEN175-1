@@ -110,6 +110,7 @@ int isignored(char character){
 int lexan(string& lexbuf){
 
 	char input = cin.peek();
+	char nbuff;
 	char cbuff;
 	string opbuff;
 
@@ -221,29 +222,29 @@ int lexan(string& lexbuf){
 		//handle comments
 		//Currently there's an issue with:
 		// "/***/ auto"
-		//vs
+		//     vs
 		// "/**/ auto"
-		
+
 		if(input == '/'){
 			cin.get();
 			input = cin.peek();
 
 			if(input == '*'){
-				do {
-commentLoop:
+				//then a comment has begun
+
+				do{
 					cin.get();
 					input = cin.peek();
+commentLoop:
+					nbuff = 'T';
 				} while(input != '*');
 
-				//add the start to the input, look at the next char
 				cin.get();
 				input = cin.peek();
-				//if its anything but the / char, send it back into the do-while loop (logic preserved)
+
 				if(input != '/'){
 					goto commentLoop;
 				}
-
-				//removes / from cin
 				cin.get();
 				input = cin.peek();
 
@@ -254,13 +255,28 @@ commentLoop:
 			}
 		}
 
-		//handle operators
+		//handle operators (1 length)
 		if(isOperator1(input)){
 			lexbuf += input;
 			cin.get();
 			input = cin.peek();
 
 			return OPERATOR;
+		}
+
+		if(input == '|'){
+			cin.get();
+			input = cin.peek();
+			if(input == '|'){
+				lexbuf += "||";
+				cin.get();
+				input = cin.peek();
+
+				return OPERATOR;
+			}
+			else{
+				cin.putback('|');
+			}
 		}
 
 		//Ambiguous operator; could be 1 or two chars long
@@ -282,12 +298,17 @@ commentLoop:
 				lexbuf += cbuff;
 				return OPERATOR;
 			}
-
 		}
+
+
+
+
+
+
 		
 		//What should I do with illegal characters?
-		cin.get();
-		input = cin.peek();
+		//cin.get();
+		//input = cin.peek();
 
 	}
 
