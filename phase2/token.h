@@ -4,8 +4,9 @@
 enum{
 	ERROR = -1,
 	DONE = 0,
-	ID,
-	INTEGER,
+	
+	ID = 1,
+	INTEGER = 2,
 	REAL,
 	STRING,
 
@@ -42,7 +43,7 @@ enum{
 	VOLATILE,
 	WHILE,
 
-	AMP,
+	AMP8,
 	AND,
 	ARROW,
 	ASSIGN,

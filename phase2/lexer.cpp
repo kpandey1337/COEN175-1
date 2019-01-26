@@ -93,6 +93,7 @@ int lexan(string &lexbuf)
     long val;
     static int c = cin.get();
 
+    cout << "Inside lexan" << endl;
 
     /* The invariant here is that the next character has already been read
        and is ready to be classified.  In this way, we eliminate having to
@@ -188,6 +189,7 @@ int lexan(string &lexbuf)
 
 		    }
 
+		    cout << "returning ID" << endl;
 		    return ID;
 
 
@@ -483,6 +485,8 @@ int lexan(string &lexbuf)
  * Description:	Read and tokenize and standard input stream.
  */
 
+/*
+
 int main()
 {
     int token;
@@ -581,3 +585,5 @@ int main()
 
     return 0;
 }
+
+*/
