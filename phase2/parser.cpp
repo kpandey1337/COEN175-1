@@ -177,16 +177,15 @@ void exprResolved(){
 void exprPostfix(){
 	if(prints_enabled == 1)
 		cout << "In exprPostfix.." << endl; //**###
+
 	exprResolved(); //this has to resolve to an indexable? semantically anyways
 
 	while(lookahead == LEFTBRACKET){
 		match(LEFTBRACKET);
-		expr();
+		expr(); //should i just match integer here?
 		match(RIGHTBRACKET);
 		cout << "index" << endl;
 	}
-
-
 
 }
 
@@ -218,12 +217,6 @@ void exprPrefix(){
 			break;
 		case SIZEOF:
 			match(SIZEOF);
-
-			match(LEFTPAREN);
-			specifier();
-			pointers();
-			match(RIGHTPAREN);
-
 			cout << "sizeof" << endl;
 			break;
 		default:
@@ -248,10 +241,8 @@ void exprCast(){
 
 void exprDetermineCastPrefix(){
 
-	int x = peekAhead();
-
 	if(prints_enabled == 1)
-		cout << "In exprDetermineCastPrefix .. lookahead = "<< lookahead <<" peekAhead = " << x << endl; //**###
+		cout << "In exprDetermineCastPrefix .. lookahead = "<< lookahead <<" peekAhead = " << peekAhead() << endl; //**###
 
 	if(lookahead == LEFTPAREN && isSpecifier(peekAhead())){
 		exprCast();
@@ -349,9 +340,12 @@ void exprEquality(){
 	if(prints_enabled == 1)
 		cout << "In exprEquality .." << endl; //**###
 	exprQuantComparison();
+	
+	if(prints_enabled == 1)
+		cout << "Back to exprEquality .. lookahead = " << lookahead <<  endl; //**###
 
 	while(1){ 
-		if(lookahead == EQUALS){
+		if(lookahead == EQUALS){ //why does the equality operator fail in a statement?
 			match(EQUALS);
 			exprQuantComparison();
 			cout << "equals" << endl;
@@ -371,6 +365,10 @@ void exprAnd(){
 	if(prints_enabled == 1)
 		cout << "In exprAnd .." << endl; //**###
 	exprEquality();
+	
+	if(prints_enabled == 1)
+		cout << "Back to exprAnd .. lookahead = " << lookahead <<  endl; //**###
+
 
 	while(lookahead == AND){
 		match(AND);
@@ -401,7 +399,188 @@ void expr(){
 
 /* =-=-=-=-= */
 
-void determineGlobalOrFunction(){
+/* =-=-=-=-= */
+/* Statements */
+/* =-=-=-=-= */
+
+void statements();
+void declarations();
+
+void statement(){
+
+	if(lookahead == LEFTBRACE){
+		match(LEFTBRACE);
+		declarations();
+		statements();
+		match(RIGHTBRACE);
+	}
+	else if(lookahead == WHILE){
+		match(WHILE);
+		match(LEFTPAREN);
+		expr();
+		match(RIGHTPAREN);
+		statement();
+	}
+	else if(lookahead == IF){
+		match(IF);
+		match(LEFTPAREN);
+		expr();
+		match(RIGHTPAREN);
+		statement();
+
+		if(lookahead == ELSE){
+			match(ELSE);
+			statement();
+		}
+	}
+	else if(lookahead == RETURN){
+		match(RETURN);
+		expr();
+		match(SEMICOLON);
+	}
+	else{
+		expr();
+
+		if(lookahead == ASSIGN){
+			match(ASSIGN);
+			expr();
+		}
+
+		match(SEMICOLON);
+	}
+	
+
+}
+
+void statements(){
+	while(lookahead != RIGHTBRACE){
+		statement();
+	}
+}
+
+/* =-=-=-=-= */
+/* Decl */
+/* =-=-=-=-= */
+
+void parameter(){
+	specifier();
+	pointers();
+	match(ID);
+}
+
+void parameters(){
+	if(lookahead == VOID){
+		match(VOID);
+	}
+	else{
+		parameter();
+
+		while(lookahead == COMMA){
+			match(COMMA);
+			parameter();
+		}
+
+	}
+}
+
+void declarator(){
+	pointers();
+	match(ID);
+
+	if(lookahead == LEFTBRACKET){
+		match(LEFTBRACKET);
+		match(INTEGER); //INT OR INTEGER?
+		match(RIGHTBRACKET);
+	}
+
+}
+
+void declaration(){
+	specifier();
+	declarator();
+
+	while(lookahead == COMMA){
+		match(COMMA);
+		declarator();
+	}
+
+	match(SEMICOLON);
+}
+
+void declarations(){
+	while(isSpecifier(lookahead)){
+		declaration();
+	}
+}
+
+
+/* =-=-=-=-= */
+
+
+void globalDeclarator(){
+
+	pointers();
+	match(ID);
+
+	if(lookahead == LEFTPAREN){
+		match(LEFTPAREN);
+		parameters();
+		match(RIGHTPAREN);
+	}
+	else if(lookahead == LEFTBRACKET){
+		match(LEFTBRACKET);
+		match(INTEGER);
+		match(RIGHTBRACKET);
+	}
+
+}
+
+void remaining_decls(){
+
+	while(lookahead == COMMA){
+		match(COMMA);
+		globalDeclarator();
+
+	}
+	match(SEMICOLON);
+
+}
+
+//specifier from global declaration
+//encompasses global-declarator-list and global-declarator
+void functionOrGlobal(){
+	specifier();
+	pointers();
+	match(ID);
+
+	if(lookahead == LEFTPAREN){ //case for function definition
+		match(LEFTPAREN);
+		parameters();
+		match(RIGHTPAREN);
+		
+		if(lookahead == LEFTBRACE){
+			match(LEFTBRACE);
+			declarations();
+			statements();
+			match(RIGHTBRACE);
+		}
+		
+		
+	}
+	else{ 
+		//case for global-declarator
+		//use remaining-decls to allow for list of global-decls
+		if(lookahead == LEFTBRACKET){
+			match(LEFTBRACKET);
+			match(INTEGER);
+			match(RIGHTBRACE);
+
+			remaining_decls();
+		}
+		else{
+			remaining_decls();
+		}
+	}
 	return;
 }
 
@@ -422,8 +601,10 @@ int main(int argc, char* argv[]){
 	while (lookahead != DONE){
 		if(prints_enabled == 1)
 			cout << "In while .." << endl; //**###
-		//determineGlobalOrFunction();
-		expr();
+		
+		//expr();
+		//statement();
+		functionOrGlobal();
 
 	}
 
