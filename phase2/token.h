@@ -1,15 +1,17 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+
+
 enum{
 	ERROR = -1,
-	DONE = 0,
 	
+	
+	DONE = 0,
 	ID = 1,
 	INTEGER = 2,
 	REAL,
 	STRING,
-
 	AUTO,
 	BREAK,
 	CASE,
@@ -42,8 +44,7 @@ enum{
 	VOID,
 	VOLATILE,
 	WHILE,
-
-	AMP8,
+	AMP,
 	AND,
 	ARROW,
 	ASSIGN,

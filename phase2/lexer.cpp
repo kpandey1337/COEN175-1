@@ -22,6 +22,8 @@
 using namespace std;
 int numerrors, lineno = 1;
 
+extern int prints_enabled;
+
 
 /* Later, we will associate token values with each keyword */
 
@@ -91,9 +93,14 @@ void report(const string &str, const string &arg)
 int lexan(string &lexbuf)
 {
     long val;
-    static int c = cin.get();
 
-    cout << "Inside lexan" << endl;
+	if(prints_enabled)
+		cout << "Waiting for input in lexan" << endl;
+
+    static int c = cin.get();
+	
+	if(prints_enabled)
+    	cout << "Inside lexan function" << endl;
 
     /* The invariant here is that the next character has already been read
        and is ready to be classified.  In this way, we eliminate having to
@@ -189,7 +196,9 @@ int lexan(string &lexbuf)
 
 		    }
 
-		    cout << "returning ID" << endl;
+			if(prints_enabled)
+		    	cout << "returning ID" << endl;
+				
 		    return ID;
 
 

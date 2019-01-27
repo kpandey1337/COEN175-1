@@ -10,13 +10,13 @@ int nexttoken = 0;
 string lexbuf;
 string nextbuf;
 
-int prints_enabled = 1;
+int prints_enabled = 0;
 
 /* =-=-=-=-= */
 /* Prototypes */
 /* =-=-=-=-= */
 
-int error();
+void error();
 void match(int token);
 void expr();
 void exprDetermineCastPrefix();
@@ -26,9 +26,8 @@ void exprDetermineCastPrefix();
 /* =-=-=-=-= */
 
 void match(int token){
-
 	if(prints_enabled)
-		cout << "\tMatching-- argument: " << token << " token: " << token << endl;
+		cout << "\tMatch-- argument: " << token << " lookahead: " << token << endl;
 
 	if(lookahead != token){
 		error();
@@ -43,15 +42,22 @@ void match(int token){
 	}
 	else{
 		lookahead = lexan(lexbuf);
+
+		if(prints_enabled)
 		cout << "\tDONE Lexan()" << endl;
 	}
-
+		if(prints_enabled)
 		cout << "\tDONE Matching-- argument: " << token << " token: " << token << endl;
 }
 
-int error(){
-	cerr << "Error. Terminating. lexbuf: " << lexbuf << endl;
-	while(1){}
+void error(){
+    if (lookahead == DONE){
+		report("syntax error at end of file");
+	}
+	else{
+		report("syntax error at '%s'", lexbuf);
+	}
+	exit(0);
 }
 
 // ????????????????????????????????????????????????
@@ -63,8 +69,6 @@ bool isSpecifier(int token){
 		case CHAR:
 		case INT:
 		case DOUBLE:
-		case FLOAT:
-		case SHORT:
 			return 1;
 		default:
 			return 0;
@@ -73,7 +77,7 @@ bool isSpecifier(int token){
 }
 
 int peekAhead(){
-	if(nexttoken != 0){ 
+	if(nexttoken == 0){ 
 		//will make multiple calls to check for valid specifiers; cannot peek more than once from the input stream
 		//REMINDER - set nexttoken to 0 when done for desired behavior *******
 		nexttoken = lexan(nextbuf);
@@ -89,6 +93,27 @@ OR -> AND -> EQ/NEQ -> LT, LTE, GT, GTE -> +/- -> *,/,% -> [] -> id, id(), id(ex
 
 */
 /* =-=-=-=-= */
+void pointers(){
+	if(prints_enabled == 1)
+		cout << "In pointers .." << endl; //**###
+	while(lookahead == ASTERISK){
+		match(ASTERISK);
+	}
+}
+
+void specifier(){
+	if(prints_enabled == 1)
+		cout << "In specifier .." << endl; //**###
+	if(isSpecifier(lookahead)){
+		//can't trust match for error collection here
+		//need to ensure that specifier comes after cast LEFTPAREN
+		//if so match it exactly once, more than one specifier will be caught by pointers()
+		match(lookahead);
+	}
+	else{
+		error();
+	}
+}
 
 void exprList(){
 	if(prints_enabled == 1)
@@ -141,7 +166,7 @@ void exprResolved(){
 
 			break;
 		default:
-			//error();
+			error();
 			break;
 	}
 
@@ -165,6 +190,8 @@ void exprPostfix(){
 
 }
 
+
+//Do i need to handle the case where multiple -'s? or &&&&a
 void exprPrefix(){
 	if(prints_enabled == 1)
 		cout << "In exprPrefix .." << endl; //**###
@@ -191,7 +218,12 @@ void exprPrefix(){
 			break;
 		case SIZEOF:
 			match(SIZEOF);
-			exprDetermineCastPrefix();
+
+			match(LEFTPAREN);
+			specifier();
+			pointers();
+			match(RIGHTPAREN);
+
 			cout << "sizeof" << endl;
 			break;
 		default:
@@ -200,31 +232,10 @@ void exprPrefix(){
 	}
 }
 
-void specifier(){
-	if(prints_enabled == 1)
-		cout << "In specifier .." << endl; //**###
-	if(isSpecifier(lookahead)){
-		//can't trust match for error collection here
-		//need to ensure that specifier comes after cast LEFTPAREN
-		//if so match it exactly once, more than one specifier will be caught by pointers()
-		match(lookahead);
-	}
-	else{
-		error();
-	}
-}
-
-void pointers(){
-	if(prints_enabled == 1)
-		cout << "In pointers .." << endl; //**###
-	while(lookahead == ASTERISK){
-		match(ASTERISK);
-	}
-}
-
 void exprCast(){
 	if(prints_enabled == 1)
 		cout << "In exprCast .." << endl; //**###
+	
 	if(lookahead == LEFTPAREN && isSpecifier(peekAhead())){
 		match(LEFTPAREN); //handles the LEFTPAREN and moves the token peekAhead() buffered to lookahead
 		specifier();
@@ -236,8 +247,11 @@ void exprCast(){
 }
 
 void exprDetermineCastPrefix(){
+
+	int x = peekAhead();
+
 	if(prints_enabled == 1)
-		cout << "In exprDetermineCastPrefix .." << endl; //**###
+		cout << "In exprDetermineCastPrefix .. lookahead = "<< lookahead <<" peekAhead = " << x << endl; //**###
 
 	if(lookahead == LEFTPAREN && isSpecifier(peekAhead())){
 		exprCast();
@@ -285,11 +299,13 @@ void exprAddSub(){
 			match(PLUS);
 			exprMultDivMod();
 			cout << "add" << endl;
+			continue;
 		}
 		if(lookahead == MINUS){
 			match(MINUS);
 			exprMultDivMod();
 			cout << "sub" << endl;
+			continue;
 		}
 		else{
 			break;
@@ -378,6 +394,7 @@ void exprOr(){
 void expr(){
 	if(prints_enabled == 1)
 		cout << "In expr .." << endl; //**###
+	
 	exprOr();
 
 }
@@ -389,14 +406,18 @@ void determineGlobalOrFunction(){
 }
 
 
-int main(){
+int main(int argc, char* argv[]){
+
+	if(argc == 2)
+		prints_enabled = atoi(argv[1]);
 
 	if(prints_enabled == 1)
 		cout << "Entering main.." << endl; //**###
 
 	lookahead = lexan(lexbuf);
 
-	cout << "Entering while.." << endl;
+	if(prints_enabled)
+		cout << "Entering while.." << endl;
 
 	while (lookahead != DONE){
 		if(prints_enabled == 1)
