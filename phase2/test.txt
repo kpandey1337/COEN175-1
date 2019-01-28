@@ -1,4 +1,0 @@
-int x, f(int x, char b);
-int f(int x, char b	){
-	return a - b;
-}
