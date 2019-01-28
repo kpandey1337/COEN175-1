@@ -1,0 +1,7 @@
+equals
+equals
+or
+sub
+sub
+add
+ampersand

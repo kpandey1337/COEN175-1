@@ -2,14 +2,16 @@
 
 int main(void)
 {
-    int i, n, the_sum;
+    int i, n, sum;
 
     i = 0;
-    the_sum = 0;
+    sum = 0;
     n = 10;
 
-    for (i = 1; i <= n; i = i + 1)
-	the_sum = the_sum + i;
+    while (i <= n) {
+	sum = sum + i;
+	i = i + 1;
+    }
 
-    printf("%d %d\n", the_sum, n * (n + 1) / 2);
+    printf("%d %d\n", sum, n * (n + 1) / 2);
 }

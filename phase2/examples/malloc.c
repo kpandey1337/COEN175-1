@@ -1,6 +1,6 @@
 /* malloc.c */
 
-int *malloc(unsigned long n);
+char *malloc(int n);
 
 int main(void)
 {
@@ -8,8 +8,5 @@ int main(void)
     int *p;
 
     n = 10;
-    p = malloc(sizeof(int) * n);
-
-    while (-- n)
-	*p ++ = 0;
+    p = (int *) malloc(sizeof(int) * n);
 }

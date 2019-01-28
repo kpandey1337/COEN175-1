@@ -1,0 +1,8 @@
+1c1
+< lessThanEqual
+---
+> leq
+5c5
+< mult
+---
+> mul

@@ -13,7 +13,11 @@ for filename in f:
 
 for filename in raw_filenames:
 	system_call = "./scc 0 < examples/" + filename + ".c > results/" + filename + ".txt"
-	os.system(system_call)
 
+	print("====\nTesting: ",filename)
+	system(system_call)
 
+	diff_call = "diff results/" + filename + ".txt results/" + filename + ".out > diffs/" + filename + "_diff.txt"
+
+	system(diff_call)
 

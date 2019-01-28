@@ -1,0 +1,24 @@
+Matching RIGHTBRACE in FoG
+Done matching RIGHTBRACE in FoG
+ampersand
+ampersand
+ampersand
+sub
+index
+mult
+index
+div
+index
+greaterThan
+index
+mod
+index
+mult
+greaterThanEqual
+asterisk
+not
+not
+mult
+add
+lessThan
+and

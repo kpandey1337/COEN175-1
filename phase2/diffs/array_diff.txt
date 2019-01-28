@@ -1,0 +1,38 @@
+1,5c1,3
+< Matching RIGHTBRACE in FoG
+< Done matching RIGHTBRACE in FoG
+< ampersand
+< ampersand
+< ampersand
+---
+> addr
+> addr
+> addr
+8c6
+< mult
+---
+> mul
+12c10
+< greaterThan
+---
+> gtn
+14c12
+< mod
+---
+> rem
+16,18c14,16
+< mult
+< greaterThanEqual
+< asterisk
+---
+> mul
+> geq
+> deref
+21c19
+< mult
+---
+> mul
+23c21
+< lessThan
+---
+> ltn

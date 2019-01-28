@@ -11,6 +11,7 @@ string lexbuf;
 string nextbuf;
 
 int prints_enabled = 0;
+int manual_debug = 1;
 
 /* =-=-=-=-= */
 /* Prototypes */
@@ -18,8 +19,12 @@ int prints_enabled = 0;
 
 void error();
 void match(int token);
+
 void expr();
 void exprDetermineCastPrefix();
+
+void statements();
+void declarations();
 
 /* =-=-=-=-= */
 /* Utilities */
@@ -96,6 +101,7 @@ OR -> AND -> EQ/NEQ -> LT, LTE, GT, GTE -> +/- -> *,/,% -> [] -> id, id(), id(ex
 void pointers(){
 	if(prints_enabled == 1)
 		cout << "In pointers .." << endl; //**###
+
 	while(lookahead == ASTERISK){
 		match(ASTERISK);
 	}
@@ -104,6 +110,7 @@ void pointers(){
 void specifier(){
 	if(prints_enabled == 1)
 		cout << "In specifier .." << endl; //**###
+
 	if(isSpecifier(lookahead)){
 		//can't trust match for error collection here
 		//need to ensure that specifier comes after cast LEFTPAREN
@@ -118,6 +125,7 @@ void specifier(){
 void exprList(){
 	if(prints_enabled == 1)
 		cout << "In exprList .." << endl; //**###
+
 	expr();
 
 	while(lookahead == COMMA){
@@ -129,6 +137,7 @@ void exprList(){
 void exprResolved(){
 	if(prints_enabled == 1)
 		cout << "In exprResolved ... lookahead: " << lookahead << endl; //**###
+
 	switch(lookahead){
 		case INTEGER:
 			match(INTEGER);
@@ -149,24 +158,22 @@ void exprResolved(){
 				cout << "matching ID" << endl;
 			match(ID); 
 			//have ID
-			//must handle cases: ID, ID(), ID(expr-list)
+			//must handle cases: {(), (expr-list)}
 
 			if(lookahead == LEFTPAREN){
 				//have ID(
 				match(LEFTPAREN);
-
 				if(lookahead != RIGHTPAREN){
 					//have ID( ...
 					exprList();
 				}
-
 				match(RIGHTPAREN);
-
 			}
 
 			break;
 		default:
 			error();
+			//can error really be done here? feel like some stuff gets to expr_resolved but needs to go back up the tree..?
 			break;
 	}
 
@@ -194,6 +201,7 @@ void exprPostfix(){
 void exprPrefix(){
 	if(prints_enabled == 1)
 		cout << "In exprPrefix .." << endl; //**###
+
 	switch(lookahead){
 		case AMP:
 			match(AMP);
@@ -205,18 +213,24 @@ void exprPrefix(){
 			exprPrefix();
 			cout << "asterisk" << endl;
 			break;
-		case NOT:
-			match(NOT);
-			exprPrefix();
-			cout << "not" << endl;
-			break;
 		case MINUS:
 			match(MINUS);
 			exprPrefix();
 			cout << "minus" << endl;
 			break;
+		case NOT:
+			match(NOT);
+			exprPrefix();
+			cout << "not" << endl;
+			break;
 		case SIZEOF:
 			match(SIZEOF);
+
+			match(LEFTPAREN);
+			specifier();
+			pointers();
+			match(RIGHTPAREN);
+
 			cout << "sizeof" << endl;
 			break;
 		default:
@@ -240,7 +254,6 @@ void exprCast(){
 }
 
 void exprDetermineCastPrefix(){
-
 	if(prints_enabled == 1)
 		cout << "In exprDetermineCastPrefix .. lookahead = "<< lookahead <<" peekAhead = " << peekAhead() << endl; //**###
 
@@ -307,8 +320,8 @@ void exprAddSub(){
 void exprQuantComparison(){
 	if(prints_enabled == 1)
 		cout << "In exprQuantComparison .." << endl; //**###
+	
 	exprAddSub();
-
 	while(1){
 		if(lookahead == LT){
 			match(LT);
@@ -339,6 +352,7 @@ void exprQuantComparison(){
 void exprEquality(){
 	if(prints_enabled == 1)
 		cout << "In exprEquality .." << endl; //**###
+	
 	exprQuantComparison();
 	
 	if(prints_enabled == 1)
@@ -380,8 +394,8 @@ void exprAnd(){
 void exprOr(){
 	if(prints_enabled == 1)
 		cout << "In exprOr .." << endl; //**###
+	
 	exprAnd();
-
 	while(lookahead == OR){
 		match(OR);
 		exprAnd();
@@ -403,11 +417,9 @@ void expr(){
 /* Statements */
 /* =-=-=-=-= */
 
-void statements();
-void declarations();
+
 
 void statement(){
-
 	if(lookahead == LEFTBRACE){
 		match(LEFTBRACE);
 		declarations();
@@ -445,11 +457,8 @@ void statement(){
 			match(ASSIGN);
 			expr();
 		}
-
 		match(SEMICOLON);
 	}
-	
-
 }
 
 void statements(){
@@ -479,7 +488,6 @@ void parameters(){
 			match(COMMA);
 			parameter();
 		}
-
 	}
 }
 
@@ -489,10 +497,9 @@ void declarator(){
 
 	if(lookahead == LEFTBRACKET){
 		match(LEFTBRACKET);
-		match(INTEGER); //INT OR INTEGER?
+		match(INTEGER); //INT vs INTEGER?
 		match(RIGHTBRACKET);
 	}
-
 }
 
 void declaration(){
@@ -503,7 +510,6 @@ void declaration(){
 		match(COMMA);
 		declarator();
 	}
-
 	match(SEMICOLON);
 }
 
@@ -518,7 +524,6 @@ void declarations(){
 
 
 void globalDeclarator(){
-
 	pointers();
 	match(ID);
 
@@ -532,18 +537,14 @@ void globalDeclarator(){
 		match(INTEGER);
 		match(RIGHTBRACKET);
 	}
-
 }
 
 void remaining_decls(){
-
 	while(lookahead == COMMA){
 		match(COMMA);
 		globalDeclarator();
-
 	}
 	match(SEMICOLON);
-
 }
 
 //specifier from global declaration
@@ -553,19 +554,21 @@ void functionOrGlobal(){
 	pointers();
 	match(ID);
 
-	if(lookahead == LEFTPAREN){ //case for function definition
+	if(lookahead == LEFTPAREN){ 
 		match(LEFTPAREN);
 		parameters();
 		match(RIGHTPAREN);
 		
-		if(lookahead == LEFTBRACE){
+		if(lookahead == LEFTBRACE){ //case for function definition
 			match(LEFTBRACE);
 			declarations();
 			statements();
 			match(RIGHTBRACE);
 		}
-		
-		
+		else{ //case for function declaration
+			match(SEMICOLON);
+		}
+
 	}
 	else{ 
 		//case for global-declarator
@@ -573,7 +576,13 @@ void functionOrGlobal(){
 		if(lookahead == LEFTBRACKET){
 			match(LEFTBRACKET);
 			match(INTEGER);
-			match(RIGHTBRACE);
+
+			if(manual_debug == 1)
+				cout << "Matching RIGHTBRACE in FoG" << endl; //**###
+			match(RIGHTBRACKET);
+			
+			if(manual_debug == 1)
+				cout << "Done matching RIGHTBRACE in FoG" << endl; //**###
 
 			remaining_decls();
 		}
@@ -586,12 +595,13 @@ void functionOrGlobal(){
 
 
 int main(int argc, char* argv[]){
+	if(manual_debug == 1){
+		if(argc == 2)
+			prints_enabled = atoi(argv[1]);
 
-	if(argc == 2)
-		prints_enabled = atoi(argv[1]);
-
-	if(prints_enabled == 1)
-		cout << "Entering main.." << endl; //**###
+		if(prints_enabled == 1)
+			cout << "Entering main.." << endl; //**###
+	}
 
 	lookahead = lexan(lexbuf);
 
@@ -607,7 +617,5 @@ int main(int argc, char* argv[]){
 		functionOrGlobal();
 
 	}
-
 	return 0;
-
 }
