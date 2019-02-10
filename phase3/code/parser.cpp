@@ -289,7 +289,7 @@ static void postfixExpression(bool lparenMatched)
 		match('[');
 		expression();
 		match(']');
-		cout << "index" << endl;
+		//cout << "index" << endl;
     }
 }
 
@@ -314,22 +314,22 @@ static void prefixExpression()
     if (lookahead == '!') {
 		match('!');
 		prefixExpression();
-		cout << "not" << endl;
+		//cout << "not" << endl;
 
     } else if (lookahead == '-') {
 		match('-');
 		prefixExpression();
-		cout << "neg" << endl;
+		//cout << "neg" << endl;
 
     } else if (lookahead == '*') {
 		match('*');
 		prefixExpression();
-		cout << "deref" << endl;
+		//cout << "deref" << endl;
 
     } else if (lookahead == '&') {
 		match('&');
 		prefixExpression();
-		cout << "addr" << endl;
+		//cout << "addr" << endl;
 
     } else if (lookahead == SIZEOF) {
 		match(SIZEOF);
@@ -337,7 +337,7 @@ static void prefixExpression()
 		specifier();
 		pointers();
 		match(')');
-		cout << "sizeof" << endl;
+		//cout << "sizeof" << endl;
 
     } else if (lookahead == '(') {
 		match('(');
@@ -347,7 +347,7 @@ static void prefixExpression()
 		    pointers();
 		    match(')');
 		    prefixExpression();
-		    cout << "cast" << endl;
+		    //cout << "cast" << endl;
 
 		} else
 		    postfixExpression(true);
@@ -377,17 +377,17 @@ static void multiplicativeExpression()
 		if (lookahead == '*') {
 		    match('*');
 		    prefixExpression();
-		    cout << "mul" << endl;
+		    //cout << "mul" << endl;
 
 		} else if (lookahead == '/') {
 		    match('/');
 		    prefixExpression();
-		    cout << "div" << endl;
+		    //cout << "div" << endl;
 
 		} else if (lookahead == '%') {
 		    match('%');
 		    prefixExpression();
-		    cout << "rem" << endl;
+		    //cout << "rem" << endl;
 
 		} else
 		    break;
@@ -414,12 +414,12 @@ static void additiveExpression()
 		if (lookahead == '+') {
 		    match('+');
 		    multiplicativeExpression();
-		    cout << "add" << endl;
+		    //cout << "add" << endl;
 
 		} else if (lookahead == '-') {
 		    match('-');
 		    multiplicativeExpression();
-		    cout << "sub" << endl;
+		    //cout << "sub" << endl;
 
 		} else
 		    break;
@@ -450,22 +450,22 @@ static void relationalExpression()
 		if (lookahead == '<') {
 		    match('<');
 		    additiveExpression();
-		    cout << "ltn" << endl;
+		    //cout << "ltn" << endl;
 
 		} else if (lookahead == '>') {
 		    match('>');
 		    additiveExpression();
-		    cout << "gtn" << endl;
+		    //cout << "gtn" << endl;
 
 		} else if (lookahead == LEQ) {
 		    match(LEQ);
 		    additiveExpression();
-		    cout << "leq" << endl;
+		    //cout << "leq" << endl;
 
 		} else if (lookahead == GEQ) {
 		    match(GEQ);
 		    additiveExpression();
-		    cout << "geq" << endl;
+		    //cout << "geq" << endl;
 
 		} else
 		    break;
@@ -492,12 +492,12 @@ static void equalityExpression()
 		if (lookahead == EQL) {
 		    match(EQL);
 		    relationalExpression();
-		    cout << "eql" << endl;
+		    //cout << "eql" << endl;
 
 		} else if (lookahead == NEQ) {
 		    match(NEQ);
 		    relationalExpression();
-		    cout << "neq" << endl;
+		    //cout << "neq" << endl;
 
 		} else
 		    break;
@@ -523,7 +523,7 @@ static void logicalAndExpression()
     while (lookahead == AND) {
 		match(AND);
 		equalityExpression();
-		cout << "and" << endl;
+		//cout << "and" << endl;
     }
 }
 
@@ -547,7 +547,7 @@ static void expression()
     while (lookahead == OR) {
 		match(OR);
 		logicalAndExpression();
-		cout << "or" << endl;
+		//cout << "or" << endl;
     }
 }
 
