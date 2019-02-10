@@ -6,9 +6,18 @@
 Scope* openScope();
 void closeScope();
 
-Symbol* decFunction(const std::string &name, const Type &type);
-Symbol* defFunction(const std::string &name, const Type &type);
-Symbol* decVariable(const std::string &name, const Type &type);
-Symbol* existsIdentifier(const std::string &name);
+Symbol* decFn(
+	const std::string &name, 
+	const Type &type);
+
+Symbol* defFn(
+	const std::string &name, 
+	const Type &type);
+
+Symbol* decVar(
+	const std::string &name, 
+	const Type &type);
+
+Symbol* checkID(const std::string &name);
 
 #endif

@@ -23,7 +23,7 @@ class Type{
 		ERROR,
 		FUNCTION,
 		SCALAR
-	} _kind;
+				} _kind;
 
 public:
 

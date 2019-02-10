@@ -20,9 +20,6 @@ using namespace std;
 static Scope* globalScope = nullptr;
 static Scope* currentScope = nullptr;
 
-
-
-
 Scope* openScope(){
 
 	currentScope = new Scope(currentScope);
@@ -47,14 +44,14 @@ void closeScope(){
 
 }
 
-Symbol* decFunction(const std::string &name, const Type &type){
+Symbol* decFn(const std::string &name, const Type &type){
 	Symbol* sym = globalScope->find(name);
 
 	if(sym == nullptr){ //previously undeclared
 		sym = new Symbol(name, type);
 		globalScope->insert(sym);
 	}
-	else if(type != sym->type()){ //previously declared, must be exactly the same
+	else if(type != sym->type()){ //previously declared, must be exactly the same type
 		delete type.parameters(); //mem leak 1
 		report(E3,sym->name());
 	}
@@ -66,7 +63,7 @@ Symbol* decFunction(const std::string &name, const Type &type){
 // (*foo).bar() == foo->bar()
 //https://stackoverflow.com/questions/1238613/what-is-the-difference-between-the-dot-operator-and-in-c
 
-Symbol* defFunction(const std::string &name, const Type &type){
+Symbol* defFn(const std::string &name, const Type &type){
 	Symbol* sym = globalScope->find(name);
 
 	if(sym != nullptr){
@@ -91,7 +88,7 @@ Symbol* defFunction(const std::string &name, const Type &type){
 	return sym;
 }
 
-Symbol* decVariable(const std::string &name, const Type &type){
+Symbol* decVar(const std::string &name, const Type &type){
 	Symbol* sym = currentScope->find(name);
 
 	if(sym != nullptr){
@@ -111,7 +108,7 @@ Symbol* decVariable(const std::string &name, const Type &type){
 	return sym;
 }
 
-Symbol* existsIdentifier(const std::string &name){
+Symbol* checkID(const std::string &name){
 	Symbol* sym = currentScope->find(name);
 
 	if(sym == nullptr){
