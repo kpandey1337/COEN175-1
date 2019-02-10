@@ -4,7 +4,7 @@
 #include "Scope.h"
 
 Scope* openScope();
-void closeScope();
+Scope* closeScope();
 
 Symbol* decFn(
 	const std::string &name, 

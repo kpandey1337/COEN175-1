@@ -1,0 +1,20 @@
+Implement implicit function declarations (fn returning int with .. params)
+	checker function to implicitly declare?
+
+figure out why conflicting gives me an E1
+
+checker types to void
+
+make checkID a lookup instead of a find()
+	did it, but now it's not completing two test cases
+
+figure out how to pipe a file into LLDB
+
+----
+
+definitions:
+	keep a vector of previously defined functions
+
+implicitly declared:
+	flag?
+	where to implicitly declare?

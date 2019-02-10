@@ -20,6 +20,13 @@ using namespace std;
 static Scope* globalScope = nullptr;
 static Scope* currentScope = nullptr;
 
+static int scopeCounter = 0;
+static int checker_debug = 1;
+
+extern int lineno;
+
+static vector<string> definedFunctions;
+
 Scope* openScope(){
 
 	currentScope = new Scope(currentScope);
@@ -30,17 +37,23 @@ Scope* openScope(){
 		assert(globalScope->enclosing() == NULL);
 	}
 
+	if(checker_debug == 1){
+    	cout << "Scope Counter: "<< ++scopeCounter <<". On line: " << lineno << endl;
+    }
+
 	return currentScope;
 }
 
-void closeScope(){
-	Scope* deleteScope = currentScope;
+Scope* closeScope(){
+	Scope* closeScope = currentScope;
 
 	currentScope = currentScope->enclosing();
 
-	delete deleteScope;
+	if(checker_debug == 1){
+    	cout << "Scope Counter: "<< --scopeCounter <<". On line: " << lineno << endl;
+    }
 
-	return;
+	return closeScope;
 
 }
 
@@ -70,8 +83,9 @@ Symbol* defFn(const std::string &name, const Type &type){
 		//so previously declared or defined
 		
 		if( sym->type().isFunction() && sym->type().parameters() ){ //check for re-definition
-			delete sym->type().parameters(); //mem leak 2
 			report(E1, sym->name());
+			delete sym->type().parameters(); //mem leak 2
+			
 		}
 		else if(sym->type() != type){ //should be a function, but more than that should be Type::==
 			report(E3, sym->name());
@@ -84,6 +98,10 @@ Symbol* defFn(const std::string &name, const Type &type){
 	//no else since we have to replace past def/dec
 	sym = new Symbol(name, type);
 	globalScope->insert(sym);
+
+	
+
+
 
 	return sym;
 }
@@ -109,7 +127,7 @@ Symbol* decVar(const std::string &name, const Type &type){
 }
 
 Symbol* checkID(const std::string &name){
-	Symbol* sym = currentScope->find(name);
+	Symbol* sym = currentScope->lookup(name);
 
 	if(sym == nullptr){
 		Type error;
