@@ -1,11 +1,8 @@
 #include "Type.h"
+#include "tokens.h"
 #include <cassert>
 
 using namespace std;
-
-bool Type::operator!=(const Type& rhs) const{
-	return !operator==(rhs);
-}
 
 //If a genie offers you three wishes and you can't ask for any more,
 //you know what to ask for: a genie with short-term memory loss
@@ -44,15 +41,78 @@ bool Type::operator==(const Type& rhs) const{
 
 }
 
-//Constructor
-Type::Type(int specifier, unsigned indirection, Parameters* parameters)
-: _specifier(specifier), _indirection(indirection), _parameters(parameters), _kind(FUNCTION){
-
+bool Type::operator!=(const Type& rhs) const{
+	return !operator==(rhs);
 }
 
+//Constructors :
+//Errors
+Type::Type()
+: _kind(ERROR)
+{}
+
+//Scalars
+Type::Type(int specifier, unsigned indirection)
+: _specifier(specifier), _indirection(indirection), _kind(SCALAR)
+{}
+
+//Arrays
+Type::Type(int specifier, unsigned indirection, unsigned length)
+: _specifier(specifier), _indirection(indirection), _length(length), _kind(ARRAY)
+{}
+
+//Functions
+Type::Type(int specifier, unsigned indirection, Parameters* parameters)
+: _specifier(specifier), _indirection(indirection), _parameters(parameters), _kind(FUNCTION)
+{}
+
+
+//Accessors :
+
+int Type::specifier() const{
+	return _specifier;
+}
+unsigned Type::indirection() const{
+	return _indirection;
+}
+	
 unsigned Type::length() const{
 	assert(_kind == ARRAY);
 	return _length;
 }
 
+Parameters* Type::parameters() const{
+	assert(_kind == FUNCTION);
+	return _parameters;
+}
+
+//OStream :
+
+ostream &operator <<(ostream &ostr, Type &type)
+{
+	switch(type.specifier()){
+		case CHAR:
+			ostr << "char";
+			break;
+		case INT:
+			ostr << "int";
+			break;
+		case DOUBLE:
+			ostr << "double";
+			break;
+		default:
+			ostr << "error";
+			break;
+	}
+
+    if (type.indirection() > 0)
+		ostr << " " << string(type.indirection(), '*');
+
+    if (type.isArray())
+		ostr << "[" << type.length() << "]";
+    else if (type.isFunction())
+		ostr << "()";
+
+    return ostr;
+}
 

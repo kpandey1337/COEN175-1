@@ -1,636 +1,753 @@
-#include <iostream>
-#include "token.h"
-#include "lexer.h"
+/*
+ * File:	parser.cpp
+ *
+ * Description:	This file contains the public and private function and
+ *		variable definitions for the recursive-descent parser for
+ *		Simple C.
+ */
+
+# include <cstdlib>
+# include <iostream>
+# include "tokens.h"
+# include "lexer.h"
 
 using namespace std;
 
-int lookahead = 0;
-int nexttoken = 0;
+static int lookahead;
+static string lexbuf;
 
-string lexbuf;
-string nextbuf;
+static void expression();
+static void statement();
 
-int prints_enabled = 0;
-int manual_debug = 1;
 
-/* =-=-=-=-= */
-/* Prototypes */
-/* =-=-=-=-= */
-
-void error();
-void match(int token);
-
-void expr();
-void exprDetermineCastPrefix();
-
-void statements();
-void declarations();
-
-/* =-=-=-=-= */
-/* Utilities */
-/* =-=-=-=-= */
-
-void match(int token){
-	if(prints_enabled)
-		cout << "\tMatch-- argument: " << token << " lookahead: " << token << endl;
-
-	if(lookahead != token){
-		error();
-	}
-	if(nexttoken != 0){ 
-		//handle the cases where we need to peekAhead() (cast vs prefix, ..)
-		//such that next token comes from my local buffer before grabbing from lexer again
-		lookahead = nexttoken;
-		nexttoken = 0;
-
-		lexbuf = nextbuf;
-	}
-	else{
-		lookahead = lexan(lexbuf);
-
-		if(prints_enabled)
-		cout << "\tDONE Lexan()" << endl;
-	}
-	if(prints_enabled)
-		cout << "\tDONE Matching-- argument: " << token << " token: " << token << endl;
-}
-
-void error(){
-    if (lookahead == DONE){
-		report("syntax error at end of file");
-	}
-	else{
-		report("syntax error at '%s'", lexbuf);
-	}
-	exit(0);
-}
-
-// ????????????????????????????????????????????????
-//What about: CONST, UNSIGNED, SIGNED?
-// ????????????????????????????????????????????????
-
-bool isSpecifier(int token){
-	switch(token){
-		case CHAR:
-		case INT:
-		case DOUBLE:
-			return 1;
-		default:
-			return 0;
-
-	}
-}
-
-int peekAhead(){
-	if(nexttoken == 0){ 
-		//will make multiple calls to check for valid specifiers; cannot peek more than once from the input stream
-		//REMINDER - set nexttoken to 0 when done for desired behavior *******
-		nexttoken = lexan(nextbuf);
-	}
-	return nexttoken;
-}
-
-/* =-=-=-=-= */
-/* Expressions */
 /*
+ * Function:	error
+ *
+ * Description:	Report a syntax error to standard error.
+ */
 
-OR -> AND -> EQ/NEQ -> LT, LTE, GT, GTE -> +/- -> *,/,% -> [] -> id, id(), id(expr-list), real, string, integer, (expr)
+static void error()
+{
+    if (lookahead == DONE)
+	report("syntax error at end of file");
+    else
+	report("syntax error at '%s'", lexbuf);
 
-*/
-/* =-=-=-=-= */
-unsigned integer(){
-	string buf = lexbuf;
-	match(INTEGER);
-	return stoul(buf, nullptr);
+    exit(EXIT_FAILURE);
 }
 
-unsigned pointers(){
-	if(prints_enabled == 1)
-		cout << "In pointers .." << endl; //**###
 
-	unsigned count = 0;
-	while(lookahead == ASTERISK){
-		match(ASTERISK);
-		count++;
-	}
-	return count;
-}
+/*
+ * Function:	match
+ *
+ * Description:	Match the next token against the specified token.  A
+ *		failure indicates a syntax error and will terminate the
+ *		program since our parser does not do error recovery.
+ */
 
-int specifier(){
-	if(prints_enabled == 1)
-		cout << "In specifier .." << endl; //**###
-
-	int typespec = lookahead;
-	if(isSpecifier(lookahead)){
-		//can't trust match for error collection here
-		//need to ensure that specifier comes after cast LEFTPAREN
-		//if so match it exactly once, more than one specifier will be caught by pointers()
-		match(lookahead);
-		return typespec;
-	}
-	
+static void match(int t)
+{
+    if (lookahead != t)
 	error();
-	return 0; //done to mute warning
-}
 
-void exprList(){
-	if(prints_enabled == 1)
-		cout << "In exprList .." << endl; //**###
-
-	expr();
-
-	while(lookahead == COMMA){
-		match(COMMA);
-		expr();
-	}
-}
-
-void exprResolved(){
-	if(prints_enabled == 1)
-		cout << "In exprResolved ... lookahead: " << lookahead << endl; //**###
-
-	switch(lookahead){
-		case INTEGER:
-			match(INTEGER);
-			break;
-		case REAL:
-			match(REAL);
-			break;
-		case STRING:
-			match(STRING);
-			break;
-		case LEFTPAREN:
-			match(LEFTPAREN);
-			expr();
-			match(RIGHTPAREN);
-			break;
-		case ID:
-			if(prints_enabled == 1)
-				cout << "matching ID" << endl;
-			match(ID); 
-			//have ID
-			//must handle cases: {(), (expr-list)}
-
-			if(lookahead == LEFTPAREN){
-				//have ID(
-				match(LEFTPAREN);
-				if(lookahead != RIGHTPAREN){
-					//have ID( ...
-					exprList();
-				}
-				match(RIGHTPAREN);
-			}
-
-			break;
-		default:
-			error();
-			//can error really be done here? feel like some stuff gets to expr_resolved but needs to go back up the tree..?
-			break;
-	}
-
-	if(prints_enabled == 1)
-		cout << "Leaving exprResolved" << endl;
-}
-
-void exprPostfix(){
-	if(prints_enabled == 1)
-		cout << "In exprPostfix.." << endl; //**###
-
-	exprResolved(); //this has to resolve to an indexable? semantically anyways
-
-	while(lookahead == LEFTBRACKET){
-		match(LEFTBRACKET);
-		expr(); //should i just match integer here?
-		match(RIGHTBRACKET);
-		cout << "index" << endl;
-	}
-
+    lookahead = lexan(lexbuf);
 }
 
 
-//Do i need to handle the case where multiple -'s? or &&&&a
-void exprPrefix(){
-	if(prints_enabled == 1)
-		cout << "In exprPrefix .." << endl; //**###
+/*
+ * Function:	isSpecifier
+ *
+ * Description:	Return whether the given token is a type specifier.
+ */
 
-	switch(lookahead){
-		case AMP:
-			match(AMP);
-			exprPrefix();
-			cout << "ampersand" << endl;
-			break;
-		case ASTERISK:
-			match(ASTERISK);
-			exprPrefix();
-			cout << "asterisk" << endl;
-			break;
-		case MINUS:
-			match(MINUS);
-			exprPrefix();
-			cout << "minus" << endl;
-			break;
-		case NOT:
-			match(NOT);
-			exprPrefix();
-			cout << "not" << endl;
-			break;
-		case SIZEOF:
-			match(SIZEOF);
-
-			match(LEFTPAREN);
-			specifier();
-			pointers();
-			match(RIGHTPAREN);
-
-			cout << "sizeof" << endl;
-			break;
-		default:
-			exprPostfix();
-
-	}
+static bool isSpecifier(int token)
+{
+    return token == CHAR || token == INT || token == DOUBLE;
 }
 
-void exprCast(){
-	if(prints_enabled == 1)
-		cout << "In exprCast .." << endl; //**###
-	
-	if(lookahead == LEFTPAREN && isSpecifier(peekAhead())){
-		match(LEFTPAREN); //handles the LEFTPAREN and moves the token peekAhead() buffered to lookahead
-		specifier();
-		pointers();
-		match(RIGHTPAREN);
-		exprDetermineCastPrefix();
-		cout << "cast" << endl;
-	}
+
+/*
+ * Function:	specifier
+ *
+ * Description:	Parse a type specifier.  Simple C has char, int, and long.
+ *
+ *		specifier:
+ *		  char
+ *		  int
+ *		  double
+ */
+
+static void specifier()
+{
+    if (isSpecifier(lookahead))
+	match(lookahead);
+    else
+	error();
 }
 
-void exprDetermineCastPrefix(){
-	if(prints_enabled == 1)
-		cout << "In exprDetermineCastPrefix .. lookahead = "<< lookahead <<" peekAhead = " << peekAhead() << endl; //**###
 
-	if(lookahead == LEFTPAREN && isSpecifier(peekAhead())){
-		exprCast();
-	}
-	else{
-		exprPrefix();
-	}
+/*
+ * Function:	pointers
+ *
+ * Description:	Parse pointer declarators (i.e., zero or more asterisks).
+ *
+ *		pointers:
+ *		  empty
+ *		  * pointers
+ */
 
+static void pointers()
+{
+    while (lookahead == '*')
+	match('*');
 }
 
-void exprMultDivMod(){
-	if(prints_enabled == 1)
-		cout << "In exprMultDivMod .." << endl; //**###
-	exprDetermineCastPrefix();
 
-	while(1){
-		if(lookahead == ASTERISK){
-			match(ASTERISK);
-			exprDetermineCastPrefix();
-			cout << "mult" << endl;
-		}
-		else if(lookahead == SLASH){
-			match(SLASH);
-			exprDetermineCastPrefix();
-			cout << "div" << endl;
-		}
-		else if(lookahead == PERCENT){
-			match(PERCENT);
-			exprDetermineCastPrefix();
-			cout << "mod" << endl;
-		}
-		else{
-			break;
-		}
-	}
+/*
+ * Function:	declarator
+ *
+ * Description:	Parse a declarator, which in Simple C is either a scalar
+ *		variable or an array, with optional pointer declarators.
+ *
+ *		declarator:
+ *		  pointers identifier
+ *		  pointers identifier [ integer ]
+ */
+
+static void declarator()
+{
+    pointers();
+    match(ID);
+
+    if (lookahead == '[') {
+	match('[');
+	match(INTEGER);
+	match(']');
+    }
 }
 
-void exprAddSub(){
-	if(prints_enabled == 1)
-		cout << "In exprAddSub .." << endl; //**###
-	exprMultDivMod();
 
-	while(1){
-		if(lookahead == PLUS){
-			match(PLUS);
-			exprMultDivMod();
-			cout << "add" << endl;
-			continue;
-		}
-		if(lookahead == MINUS){
-			match(MINUS);
-			exprMultDivMod();
-			cout << "sub" << endl;
-			continue;
-		}
-		else{
-			break;
-		}
-	}
+/*
+ * Function:	declaration
+ *
+ * Description:	Parse a local variable declaration.  Global declarations
+ *		are handled separately since we need to detect a function
+ *		as a special case.
+ *
+ *		declaration:
+ *		  specifier declarator-list ;
+ *
+ *		declarator-list:
+ *		  declarator
+ *		  declarator , declarator-list
+ */
+
+static void declaration()
+{
+    specifier();
+    declarator();
+
+    while (lookahead == ',') {
+	match(',');
+	declarator();
+    }
+
+    match(';');
 }
 
-void exprQuantComparison(){
-	if(prints_enabled == 1)
-		cout << "In exprQuantComparison .." << endl; //**###
-	
-	exprAddSub();
-	while(1){
-		if(lookahead == LT){
-			match(LT);
-			exprAddSub();
-			cout << "lessThan" << endl;
-		}
-		else if(lookahead == LTE){
-			match(LTE);
-			exprAddSub();
-			cout << "lessThanEqual" << endl;
-		}
-		else if(lookahead == GT){
-			match(GT);
-			exprAddSub();
-			cout << "greaterThan" << endl;
-		}
-		else if(lookahead == GTE){
-			match(GTE);
-			exprAddSub();
-			cout << "greaterThanEqual" << endl;
-		}
-		else{
-			break;
-		}
-	}
+
+/*
+ * Function:	declarations
+ *
+ * Description:	Parse a possibly empty sequence of declarations.
+ *
+ *		declarations:
+ *		  empty
+ *		  declaration declarations
+ */
+
+static void declarations()
+{
+    while (isSpecifier(lookahead))
+	declaration();
 }
 
-void exprEquality(){
-	if(prints_enabled == 1)
-		cout << "In exprEquality .." << endl; //**###
-	
-	exprQuantComparison();
-	
-	if(prints_enabled == 1)
-		cout << "Back to exprEquality .. lookahead = " << lookahead <<  endl; //**###
 
-	while(1){ 
-		if(lookahead == EQUALS){ //why does the equality operator fail in a statement?
-			match(EQUALS);
-			exprQuantComparison();
-			cout << "equals" << endl;
-		}
-		else if(lookahead == NE){
-			match(NE);
-			exprQuantComparison();
-			cout << "notEqual" << endl;
-		}
-		else{
-			break;
-		}
-	}
-}
+/*
+ * Function:	primaryExpression
+ *
+ * Description:	Parse a primary expression.
+ *
+ *		primary-expression:
+ *		  ( expression )
+ *		  identifier ( expression-list )
+ *		  identifier ( )
+ *		  identifier
+ *		  string
+ *		  integer
+ *		  real
+ *
+ *		expression-list:
+ *		  expression
+ *		  expression , expression-list
+ */
 
-void exprAnd(){
-	if(prints_enabled == 1)
-		cout << "In exprAnd .." << endl; //**###
-	exprEquality();
-	
-	if(prints_enabled == 1)
-		cout << "Back to exprAnd .. lookahead = " << lookahead <<  endl; //**###
+static void primaryExpression(bool lparenMatched)
+{
+    if (lparenMatched) {
+	expression();
+	match(')');
 
+    } else if (lookahead == STRING) {
+	match(STRING);
 
-	while(lookahead == AND){
-		match(AND);
-		exprEquality();
-		cout << "and" << endl;
-	}
-}
+    } else if (lookahead == INTEGER) {
+	match(INTEGER);
 
-void exprOr(){
-	if(prints_enabled == 1)
-		cout << "In exprOr .." << endl; //**###
-	
-	exprAnd();
-	while(lookahead == OR){
-		match(OR);
-		exprAnd();
-		cout << "or" << endl;
-	}
-}
+    } else if (lookahead == REAL) {
+	match(REAL);
 
-void expr(){
-	if(prints_enabled == 1)
-		cout << "In expr .." << endl; //**###
-	
-	exprOr();
-
-}
-
-/* =-=-=-=-= */
-
-/* =-=-=-=-= */
-/* Statements */
-/* =-=-=-=-= */
-
-
-
-void statement(){
-	if(lookahead == LEFTBRACE){
-		match(LEFTBRACE);
-		declarations();
-		statements();
-		match(RIGHTBRACE);
-	}
-	else if(lookahead == WHILE){
-		match(WHILE);
-		match(LEFTPAREN);
-		expr();
-		match(RIGHTPAREN);
-		statement();
-	}
-	else if(lookahead == IF){
-		match(IF);
-		match(LEFTPAREN);
-		expr();
-		match(RIGHTPAREN);
-		statement();
-
-		if(lookahead == ELSE){
-			match(ELSE);
-			statement();
-		}
-	}
-	else if(lookahead == RETURN){
-		match(RETURN);
-		expr();
-		match(SEMICOLON);
-	}
-	else{
-		expr();
-
-		if(lookahead == ASSIGN){
-			match(ASSIGN);
-			expr();
-		}
-		match(SEMICOLON);
-	}
-}
-
-void statements(){
-	while(lookahead != RIGHTBRACE){
-		statement();
-	}
-}
-
-/* =-=-=-=-= */
-/* Decl */
-/* =-=-=-=-= */
-
-void parameter(){
-	int typespec = specifier();
-	unsigned indirection = pointers();
-	match(ID);
-}
-
-void parameters(){
-	if(lookahead == VOID){
-		match(VOID);
-	}
-	else{
-		parameter();
-
-		while(lookahead == COMMA){
-			match(COMMA);
-			parameter();
-		}
-	}
-}
-
-void declarator(int typespec){
-	unsigned indirection = pointers();
+    } else if (lookahead == ID) {
 	match(ID);
 
-	if(lookahead == LEFTBRACKET){
-		match(LEFTBRACKET);
-		//match(INTEGER); //INT vs INTEGER?
-		int length = integer();
-		
-		match(RIGHTBRACKET);
+	if (lookahead == '(') {
+	    match('(');
 
-		cout << "(" << typespec << ", " << /* length of array */  "" << endl; //can't this one also have a level of indirection?
-	}
-	else{
+	    if (lookahead != ')') {
+		expression();
 
-		cout << "(" << typespec << ", " << /* level of indirection */ "" << endl;
-	}
-}
-
-void declaration(){
-	int typespec = specifier();
-	declarator(typespec);
-
-	while(lookahead == COMMA){
-		match(COMMA);
-		declarator(typespec);
-	}
-	match(SEMICOLON);
-}
-
-void declarations(){
-	while(isSpecifier(lookahead)){
-		declaration();
-	}
-}
-
-
-/* =-=-=-=-= */
-
-
-void globalDeclarator(){
-	unsigned indirection = pointers();
-	match(ID);
-
-	if(lookahead == LEFTPAREN){
-		match(LEFTPAREN);
-		parameters();
-		match(RIGHTPAREN);
-	}
-	else if(lookahead == LEFTBRACKET){
-		match(LEFTBRACKET);
-		//match(INTEGER);
-		int length = integer();
-		match(RIGHTBRACKET);
-	}
-}
-
-void remaining_decls(){
-	while(lookahead == COMMA){
-		match(COMMA);
-		globalDeclarator();
-	}
-	match(SEMICOLON);
-}
-
-//specifier from global declaration
-//encompasses global-declarator-list and global-declarator
-void functionOrGlobal(){
-	int typespec = specifier();
-	unsigned indirection = pointers();
-	match(ID);
-
-	if(lookahead == LEFTPAREN){ 
-		match(LEFTPAREN);
-		parameters();
-		match(RIGHTPAREN);
-		
-		if(lookahead == LEFTBRACE){ //case for function definition
-			match(LEFTBRACE);
-			declarations();
-			statements();
-			match(RIGHTBRACE);
+		while (lookahead == ',') {
+		    match(',');
+		    expression();
 		}
-		else{ //case for function declaration
-			match(SEMICOLON);
-		}
+	    }
 
+	    match(')');
 	}
-	else{ 
-		//case for global-declarator
-		//use remaining-decls to allow for list of global-decls
-		if(lookahead == LEFTBRACKET){
-			match(LEFTBRACKET);
-			//match(INTEGER);
-			int length = integer();
-			match(RIGHTBRACKET);
 
-			remaining_decls();
-		}
-		else{
-			remaining_decls();
-		}
-	}
-	return;
+    } else
+	error();
 }
 
 
-int main(int argc, char* argv[]){
-	if(manual_debug == 1){
-		if(argc == 2)
-			prints_enabled = atoi(argv[1]);
+/*
+ * Function:	postfixExpression
+ *
+ * Description:	Parse a postfix expression.
+ *
+ *		postfix-expression:
+ *		  primary-expression
+ *		  postfix-expression [ expression ]
+ */
 
-		if(prints_enabled == 1)
-			cout << "Entering main.." << endl; //**###
+static void postfixExpression(bool lparenMatched)
+{
+    primaryExpression(lparenMatched);
+
+    while (lookahead == '[') {
+	match('[');
+	expression();
+	match(']');
+	cout << "index" << endl;
+    }
+}
+
+
+/*
+ * Function:	prefixExpression
+ *
+ * Description:	Parse a prefix expression.
+ *
+ *		prefix-expression:
+ *		  postfix-expression
+ *		  ! prefix-expression
+ *		  - prefix-expression
+ *		  * prefix-expression
+ *		  & prefix-expression
+ *		  sizeof ( specifier pointers )
+ *		  ( specifier pointers ) prefix-expression
+ */
+
+static void prefixExpression()
+{
+    if (lookahead == '!') {
+	match('!');
+	prefixExpression();
+	cout << "not" << endl;
+
+    } else if (lookahead == '-') {
+	match('-');
+	prefixExpression();
+	cout << "neg" << endl;
+
+    } else if (lookahead == '*') {
+	match('*');
+	prefixExpression();
+	cout << "deref" << endl;
+
+    } else if (lookahead == '&') {
+	match('&');
+	prefixExpression();
+	cout << "addr" << endl;
+
+    } else if (lookahead == SIZEOF) {
+	match(SIZEOF);
+	match('(');
+	specifier();
+	pointers();
+	match(')');
+	cout << "sizeof" << endl;
+
+    } else if (lookahead == '(') {
+	match('(');
+
+	if (isSpecifier(lookahead)) {
+	    specifier();
+	    pointers();
+	    match(')');
+	    prefixExpression();
+	    cout << "cast" << endl;
+
+	} else
+	    postfixExpression(true);
+
+    } else
+	postfixExpression(false);
+}
+
+
+/*
+ * Function:	multiplicativeExpression
+ *
+ * Description:	Parse a multiplicative expression.
+ *
+ *		multiplicative-expression:
+ *		  prefix-expression
+ *		  multiplicative-expression * prefix-expression
+ *		  multiplicative-expression / prefix-expression
+ *		  multiplicative-expression % prefix-expression
+ */
+
+static void multiplicativeExpression()
+{
+    prefixExpression();
+
+    while (1) {
+	if (lookahead == '*') {
+	    match('*');
+	    prefixExpression();
+	    cout << "mul" << endl;
+
+	} else if (lookahead == '/') {
+	    match('/');
+	    prefixExpression();
+	    cout << "div" << endl;
+
+	} else if (lookahead == '%') {
+	    match('%');
+	    prefixExpression();
+	    cout << "rem" << endl;
+
+	} else
+	    break;
+    }
+}
+
+
+/*
+ * Function:	additiveExpression
+ *
+ * Description:	Parse an additive expression.
+ *
+ *		additive-expression:
+ *		  multiplicative-expression
+ *		  additive-expression + multiplicative-expression
+ *		  additive-expression - multiplicative-expression
+ */
+
+static void additiveExpression()
+{
+    multiplicativeExpression();
+
+    while (1) {
+	if (lookahead == '+') {
+	    match('+');
+	    multiplicativeExpression();
+	    cout << "add" << endl;
+
+	} else if (lookahead == '-') {
+	    match('-');
+	    multiplicativeExpression();
+	    cout << "sub" << endl;
+
+	} else
+	    break;
+    }
+}
+
+
+/*
+ * Function:	relationalExpression
+ *
+ * Description:	Parse a relational expression.  Note that Simple C does not
+ *		have shift operators, so we go immediately to additive
+ *		expressions.
+ *
+ *		relational-expression:
+ *		  additive-expression
+ *		  relational-expression < additive-expression
+ *		  relational-expression > additive-expression
+ *		  relational-expression <= additive-expression
+ *		  relational-expression >= additive-expression
+ */
+
+static void relationalExpression()
+{
+    additiveExpression();
+
+    while (1) {
+	if (lookahead == '<') {
+	    match('<');
+	    additiveExpression();
+	    cout << "ltn" << endl;
+
+	} else if (lookahead == '>') {
+	    match('>');
+	    additiveExpression();
+	    cout << "gtn" << endl;
+
+	} else if (lookahead == LEQ) {
+	    match(LEQ);
+	    additiveExpression();
+	    cout << "leq" << endl;
+
+	} else if (lookahead == GEQ) {
+	    match(GEQ);
+	    additiveExpression();
+	    cout << "geq" << endl;
+
+	} else
+	    break;
+    }
+}
+
+
+/*
+ * Function:	equalityExpression
+ *
+ * Description:	Parse an equality expression.
+ *
+ *		equality-expression:
+ *		  relational-expression
+ *		  equality-expression == relational-expression
+ *		  equality-expression != relational-expression
+ */
+
+static void equalityExpression()
+{
+    relationalExpression();
+
+    while (1) {
+	if (lookahead == EQL) {
+	    match(EQL);
+	    relationalExpression();
+	    cout << "eql" << endl;
+
+	} else if (lookahead == NEQ) {
+	    match(NEQ);
+	    relationalExpression();
+	    cout << "neq" << endl;
+
+	} else
+	    break;
+    }
+}
+
+
+/*
+ * Function:	logicalAndExpression
+ *
+ * Description:	Parse a logical-and expression.  Note that Simple C does
+ *		not have bitwise-and expressions.
+ *
+ *		logical-and-expression:
+ *		  equality-expression
+ *		  logical-and-expression && equality-expression
+ */
+
+static void logicalAndExpression()
+{
+    equalityExpression();
+
+    while (lookahead == AND) {
+	match(AND);
+	equalityExpression();
+	cout << "and" << endl;
+    }
+}
+
+
+/*
+ * Function:	expression
+ *
+ * Description:	Parse an expression, or more specifically, a logical-or
+ *		expression, since Simple C does not allow comma or
+ *		assignment as an expression operator.
+ *
+ *		expression:
+ *		  logical-and-expression
+ *		  expression || logical-and-expression
+ */
+
+static void expression()
+{
+    logicalAndExpression();
+
+    while (lookahead == OR) {
+	match(OR);
+	logicalAndExpression();
+	cout << "or" << endl;
+    }
+}
+
+
+/*
+ * Function:	statements
+ *
+ * Description:	Parse a possibly empty sequence of statements.  Rather than
+ *		checking if the next token starts a statement, we check if
+ *		the next token ends the sequence, since a sequence of
+ *		statements is always terminated by a closing brace.
+ *
+ *		statements:
+ *		  empty
+ *		  statement statements
+ */
+
+static void statements()
+{
+    while (lookahead != '}')
+	statement();
+}
+
+
+/*
+ * Function:	statement
+ *
+ * Description:	Parse a statement.  Note that Simple C has so few
+ *		statements that we handle them all in this one function.
+ *
+ *		statement:
+ *		  { declarations statements }
+ *		  return expression ;
+ *		  while ( expression ) statement
+ *		  if ( expression ) statement
+ *		  if ( expression ) statement else statement
+ *		  expression = expression ;
+ *		  expression ;
+ */
+
+static void statement()
+{
+    if (lookahead == '{') {
+	match('{');
+	declarations();
+	statements();
+	match('}');
+
+    } else if (lookahead == RETURN) {
+	match(RETURN);
+	expression();
+	match(';');
+
+    } else if (lookahead == WHILE) {
+	match(WHILE);
+	match('(');
+	expression();
+	match(')');
+	statement();
+
+    } else if (lookahead == IF) {
+	match(IF);
+	match('(');
+	expression();
+	match(')');
+	statement();
+
+	if (lookahead == ELSE) {
+	    match(ELSE);
+	    statement();
 	}
 
-	lookahead = lexan(lexbuf);
+    } else {
+	expression();
 
-	if(prints_enabled)
-		cout << "Entering while.." << endl;
-
-	while (lookahead != DONE){
-		if(prints_enabled == 1)
-			cout << "In while .." << endl; //**###
-		
-		//expr();
-		//statement();
-		functionOrGlobal();
-
+	if (lookahead == '=') {
+	    match('=');
+	    expression();
 	}
-	return 0;
+
+	match(';');
+    }
+}
+
+
+/*
+ * Function:	parameter
+ *
+ * Description:	Parse a parameter, which in Simple C is always a scalar
+ *		variable with optional pointer declarators.
+ *
+ *		parameter:
+ *		  specifier pointers ID
+ */
+
+static void parameter()
+{
+    specifier();
+    pointers();
+    match(ID);
+}
+
+
+/*
+ * Function:	parameters
+ *
+ * Description:	Parse the parameters of a function, but not the opening or
+ *		closing parentheses.
+ *
+ *		parameters:
+ *		  void
+ *		  parameter-list
+ *
+ *		parameter-list:
+ *		  parameter
+ *		  parameter , parameter-list
+ */
+
+static void parameters()
+{
+    if (lookahead == VOID)
+	match(VOID);
+
+    else {
+	parameter();
+
+	while (lookahead == ',') {
+	    match(',');
+	    parameter();
+	}
+    }
+}
+
+
+/*
+ * Function:	globalDeclarator
+ *
+ * Description:	Parse a declarator, which in Simple C is either a scalar
+ *		variable, an array, or a function, with optional pointer
+ *		declarators.
+ *
+ *		global-declarator:
+ *		  pointers identifier
+ *		  pointers identifier ( parameters )
+ *		  pointers identifier [ integer ]
+ */
+
+static void globalDeclarator()
+{
+    pointers();
+    match(ID);
+
+    if (lookahead == '(') {
+	match('(');
+	parameters();
+	match(')');
+
+    } else if (lookahead == '[') {
+	match('[');
+	match(INTEGER);
+	match(']');
+    }
+}
+
+
+/*
+ * Function:	remainingDeclarators
+ *
+ * Description:	Parse any remaining global declarators after the first.
+ *
+ * 		remaining-declarators
+ * 		  ;
+ * 		  , global-declarator remaining-declarators
+ */
+
+static void remainingDeclarators()
+{
+    while (lookahead == ',') {
+	match(',');
+	globalDeclarator();
+    }
+
+    match(';');
+}
+
+
+/*
+ * Function:	globalOrFunction
+ *
+ * Description:	Parse a global declaration or function definition.
+ *
+ * 		global-or-function:
+ * 		  specifier pointers identifier remaining-decls
+ * 		  specifier pointers identifier [ integer ] remaining-decls
+ * 		  specifier pointers identifier ( parameters ) remaining-decls 
+ * 		  specifier pointers identifier ( parameters ) { ... }
+ */
+
+static void globalOrFunction()
+{
+    specifier();
+    pointers();
+    match(ID);
+
+    if (lookahead == '[') {
+	match('[');
+	match(INTEGER);
+	match(']');
+	remainingDeclarators();
+
+    } else if (lookahead == '(') {
+	match('(');
+	parameters();
+	match(')');
+
+	if (lookahead == '{') {
+	    match('{');
+	    declarations();
+	    statements();
+	    match('}');
+
+	} else
+	    remainingDeclarators();
+
+    } else
+	remainingDeclarators();
+}
+
+
+/*
+ * Function:	main
+ *
+ * Description:	Analyze the standard input stream.
+ */
+
+int main()
+{
+    lookahead = lexan(lexbuf);
+
+    while (lookahead != DONE)
+	globalOrFunction();
+
+    exit(EXIT_SUCCESS);
 }

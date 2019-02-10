@@ -1,5 +1,3 @@
-
-
 #ifndef TYPE_H
 #define TYPE_H
 
@@ -25,7 +23,7 @@ class Type{
 		ERROR,
 		FUNCTION,
 		SCALAR
-	} kind;
+	} _kind;
 
 public:
 
@@ -48,10 +46,10 @@ public:
 	bool operator!=(const Type& rhs) const;
 
 
-	bool isScalar() const;
-	bool isArray() const;
-	bool isError() const; //we are in the class so no need to specify this->
-	bool isFunction() const;
+	bool isScalar() const { return _kind == SCALAR; }
+	bool isArray() const {return _kind == ARRAY; }
+	bool isError() const {return _kind == ERROR; } //we are in the class so no need to specify this->
+	bool isFunction() const {return _kind == FUNCTION; }
 
 	int specifier() const;
 	unsigned indirection() const;
