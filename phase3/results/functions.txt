@@ -1,5 +1,2 @@
-line 4: redefinition of ’foo’
-line 5: ’bar’ undeclared
-line 6: ’foobar’ undeclared
 line 9: conflicting types for ’foo’
-line 13: redefinition of ’bar’
+line 16: conflicting types for ’foobar’

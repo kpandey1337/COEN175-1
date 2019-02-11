@@ -1,5 +1,0 @@
-line 5: conflicting types for ’f’
-line 8: ’f’ undeclared
-line 8: ’x’ undeclared
-line 13: ’a’ undeclared
-line 16: ’b’ undeclared
