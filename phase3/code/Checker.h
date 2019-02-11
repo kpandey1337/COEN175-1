@@ -3,25 +3,25 @@
 
 #include "Scope.h"
 
-Scope* openScope();
+void openScope();
 void closeScope();
 
 bool functionPreviouslyDefined(const std::string &name);
 
-Symbol* defFn(
+void decFn(
 	const std::string &name, 
 	const Type &type);
 
-Symbol* decFn(
+void defFn(
 	const std::string &name, 
 	const Type &type);
 
-Symbol* decVar(
+void decVar(
 	const std::string &name, 
 	const Type &type);
 
-Symbol* checkFn(const std::string &name);
+void checkFn(const std::string &name);
 
-Symbol* checkID(const std::string &name);
+void checkID(const std::string &name);
 
 #endif

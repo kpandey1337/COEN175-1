@@ -17,7 +17,7 @@ using namespace std;
 static int lookahead;
 static string lexbuf;
 
-static int p3_debug = 1;
+//static int p3_debug = 0;
 
 static void expression();
 static void statement();
@@ -37,9 +37,6 @@ static string identifier(){
 	match(ID);
 	return buffer;
 }
-
-
-
 
 /* Phase 2 Solution (and mods) */
 
@@ -110,7 +107,7 @@ static int specifier()
     }
     else{
     	error();
-    	return -1;
+    	return -1; //to mute the warning
 	}
 }
 
@@ -659,13 +656,14 @@ static Type parameter()
 	int typespec;
 	unsigned indirection;
 	string name;
+	Type t;
 
     typespec = specifier();
     indirection = pointers();
     //match(ID);
     name = identifier();
 
-    Type t = Type(typespec, indirection);
+    t = Type(typespec, indirection);
     decVar(name, t);
     return t;
 }
@@ -834,8 +832,7 @@ static void globalOrFunction()
 		    remainingDeclarators(typespec);
 		}
 
-    } else{
-    	//var
+    } else{ //var
     	decVar(name, Type(typespec, indirection) );
 		remainingDeclarators(typespec);
     }
