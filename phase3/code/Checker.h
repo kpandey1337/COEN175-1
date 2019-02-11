@@ -6,17 +6,21 @@
 Scope* openScope();
 void closeScope();
 
-Symbol* decFn(
+bool functionPreviouslyDefined(const std::string &name);
+
+Symbol* defFn(
 	const std::string &name, 
 	const Type &type);
 
-Symbol* defFn(
+Symbol* decFn(
 	const std::string &name, 
 	const Type &type);
 
 Symbol* decVar(
 	const std::string &name, 
 	const Type &type);
+
+Symbol* checkFn(const std::string &name);
 
 Symbol* checkID(const std::string &name);
 

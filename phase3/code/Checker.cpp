@@ -78,8 +78,12 @@ Symbol* decFn(const std::string &name, const Type &type){
 		globalScope->insert(sym);
 	}
 	else if(type != sym->type()){ //previously declared, must be exactly the same type
-		delete type.parameters(); //mem leak 1
 		report(E3,sym->name());
+
+		// "Any subsequent declaration or definition always replaces any previous declaration or definition, even it erroneous"
+		// remove the old symbol and replace it with new one
+		currentScope->remove(sym->name());
+		currentScope->insert(new Symbol(name, type));
 	}
 
 	return sym;
@@ -134,6 +138,17 @@ Symbol* decVar(const std::string &name, const Type &type){
 		currentScope->insert(sym);
 	}
 
+	return sym;
+}
+
+Symbol* checkFn(const std::string &name){
+	Symbol* sym = globalScope->find(name);
+
+	if(sym == nullptr){
+		//case where implicit declaration needs to happen
+		decFn(name, Type(INT, 0, nullptr));
+
+	}
 	return sym;
 }
 

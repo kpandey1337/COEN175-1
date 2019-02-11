@@ -235,6 +235,8 @@ static void declarations()
 
 static void primaryExpression(bool lparenMatched)
 {
+	string name;
+
     if (lparenMatched) {
 		expression();
 		match(')');
@@ -249,7 +251,7 @@ static void primaryExpression(bool lparenMatched)
 		match(REAL);
 
     } else if (lookahead == ID) {
-		checkID(identifier());
+		name = identifier();
 
 		if (lookahead == '(') {
 		    match('(');
@@ -262,8 +264,13 @@ static void primaryExpression(bool lparenMatched)
 				    expression();
 				}
 		    }
+	    	
+	    	checkFn(name);		    
 
 		    match(')');
+		}
+		else{
+			checkID(name);
 		}
 
     } else
@@ -717,6 +724,7 @@ static void globalDeclarator(int typespec)
 
 	unsigned indirection;
 	string name;
+	Parameters* params;
 
     indirection = pointers();
     //match(ID);
@@ -725,7 +733,12 @@ static void globalDeclarator(int typespec)
     if (lookahead == '(') {
 		match('(');
 		//parameters();
-		decFn(name, Type(typespec, indirection, parameters()) );
+
+		openScope();
+		params = parameters();
+		closeScope();
+
+		decFn(name, Type(typespec, indirection, params) );
 		match(')');
 
     } else if (lookahead == '[') {
@@ -778,7 +791,6 @@ static void globalOrFunction()
 	int typespec;
 	unsigned indirection;
 	string name;
-	//unsigned num;
 	Parameters* params;
 
     typespec = specifier();
@@ -816,7 +828,7 @@ static void globalOrFunction()
 		    match('}');
 
 		} else{ //fn dec
-			
+
 			closeScope();
 			decFn(name, Type(typespec, indirection, params) );
 		    remainingDeclarators(typespec);
