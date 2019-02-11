@@ -17,13 +17,25 @@
 
 using namespace std;
 
+static int checker_debug = 1;
+
 static Scope* globalScope = nullptr;
 static Scope* currentScope = nullptr;
+
+static vector<string> definedFunctions;
+
+static int scopeCount = 0;
+extern int lineno;
+
 
 Scope* openScope(){
 
 	currentScope = new Scope(currentScope);
 	//currentScope passed as parameter to create a LL of scopes
+
+	if(checker_debug == 1){
+		cout << "\tOPEN SC: " << ++scopeCount << ". Line: "<< lineno << endl;
+	}
 
 	if(globalScope == nullptr){
 		globalScope = currentScope;
@@ -40,8 +52,22 @@ void closeScope(){
 
 	delete deleteScope;
 
+	if(checker_debug == 1){
+		cout << "\tCLOS SC: " << scopeCount-- << ". Line: "<< lineno << endl;
+	}
+
 	return;
 
+}
+
+bool functionPreviouslyDefined(const std::string &name){
+	int l = definedFunctions.size();
+	for(int i = 0; i < l; i++){
+		if(name == definedFunctions[i]){
+			return true;
+		}
+	}
+	return false;
 }
 
 Symbol* decFn(const std::string &name, const Type &type){
@@ -69,7 +95,7 @@ Symbol* defFn(const std::string &name, const Type &type){
 	if(sym != nullptr){
 		//so previously declared or defined
 		
-		if( sym->type().isFunction() && sym->type().parameters() ){ //check for re-definition
+		if( sym->type().isFunction() && functionPreviouslyDefined(name) && sym->type().parameters() ){ //check for re-definition
 			delete sym->type().parameters(); //mem leak 2
 			report(E1, sym->name());
 		}
@@ -84,6 +110,9 @@ Symbol* defFn(const std::string &name, const Type &type){
 	//no else since we have to replace past def/dec
 	sym = new Symbol(name, type);
 	globalScope->insert(sym);
+
+	//add name to functions that have been defined
+	definedFunctions.push_back(name);
 
 	return sym;
 }
@@ -109,7 +138,7 @@ Symbol* decVar(const std::string &name, const Type &type){
 }
 
 Symbol* checkID(const std::string &name){
-	Symbol* sym = currentScope->find(name);
+	Symbol* sym = currentScope->lookup(name);
 
 	if(sym == nullptr){
 		Type error;

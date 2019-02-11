@@ -51,13 +51,13 @@ Symbol* Scope::lookup(const string& name) const{
 	currentScope = (Scope*) this;
 		
 	while (currentScope != nullptr){
-		result = find(name);
+		result = currentScope->find(name);
 		
 		if(result != nullptr){
 			return result;
 		}
 
-		currentScope = _enclosing;
+		currentScope = currentScope->_enclosing;
 
 	}
 	return nullptr;

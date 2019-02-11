@@ -12,8 +12,6 @@ for filename in f:
 		#print(filename)
 		raw_filenames.append(filename.replace(".c",""))
 
-print(raw_filenames)
-
 #Make -all
 print("Making...")
 system("make -C code/")

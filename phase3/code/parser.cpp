@@ -799,11 +799,12 @@ static void globalOrFunction()
 
     } else if (lookahead == '(') {
 		match('(');
+		openScope();
 		params = parameters();
 		match(')');
 
 		if (lookahead == '{') { //fn def
-		    openScope();
+		    
 
 		    defFn(name, Type(typespec, indirection, params) );
 		    match('{');
@@ -815,7 +816,8 @@ static void globalOrFunction()
 		    match('}');
 
 		} else{ //fn dec
-
+			
+			closeScope();
 			decFn(name, Type(typespec, indirection, params) );
 		    remainingDeclarators(typespec);
 		}
