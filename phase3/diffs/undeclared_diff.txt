@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+1,2c1,2
+< line 3: ’y’ undeclared
+< line 21: ’w’ undeclared
+---
+=======
 0a1,2
+>>>>>>> master
 > line 3: 'y' undeclared
 > line 21: 'w' undeclared

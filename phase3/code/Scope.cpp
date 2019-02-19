@@ -1,5 +1,5 @@
-#include <cassert>
 #include "Scope.h"
+#include <cassert>
 
 Scope::Scope(Scope* enclosing)
 	: _enclosing(enclosing)
@@ -34,6 +34,7 @@ Symbol* Scope::find(const string& name) const{
 	Symbol* result = nullptr;
 
 	int l = _symbols.size();
+	
 	for(int i = 0; i < l; ++i){
 		if(_symbols[i]->name() == name){
 			result = _symbols[i];
@@ -47,17 +48,17 @@ Symbol* Scope::lookup(const string& name) const{
 
 	Symbol* result;
 	
-	Scope* currentScope;
-	currentScope = (Scope*) this;
+	Scope* lookupScope;
+	lookupScope = (Scope*) this;
 		
-	while (currentScope != nullptr){
-		result = find(name);
+	while (lookupScope != nullptr){
+		result = lookupScope->find(name);
 		
 		if(result != nullptr){
 			return result;
 		}
 
-		currentScope = _enclosing;
+		lookupScope = lookupScope->_enclosing;
 
 	}
 	return nullptr;

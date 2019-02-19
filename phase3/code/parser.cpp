@@ -17,7 +17,7 @@ using namespace std;
 static int lookahead;
 static string lexbuf;
 
-static int p3_debug = 1;
+//static int p3_debug = 0;
 
 static void expression();
 static void statement();
@@ -38,9 +38,6 @@ static string identifier(){
 	match(ID);
 	return buffer;
 }
-
-
-
 
 /* Phase 2 Solution (and mods) */
 
@@ -111,7 +108,7 @@ static int specifier()
     }
     else{
     	error();
-    	return -1;
+    	return -1; //to mute the warning
 	}
 }
 
@@ -236,6 +233,8 @@ static void declarations()
 
 static void primaryExpression(bool lparenMatched)
 {
+	string name;
+
     if (lparenMatched) {
 		expression();
 		match(')');
@@ -250,7 +249,7 @@ static void primaryExpression(bool lparenMatched)
 		match(REAL);
 
     } else if (lookahead == ID) {
-		checkID(identifier());
+		name = identifier();
 
 		if (lookahead == '(') {
 		    match('(');
@@ -263,10 +262,15 @@ static void primaryExpression(bool lparenMatched)
 				    expression();
 				}
 		    }
+	    	
+	    	checkFn(name);		    
 
 		    //if you dont go into the if, implicitly declared
 
 		    match(')');
+		}
+		else{
+			checkID(name);
 		}
 
     } else
@@ -655,13 +659,14 @@ static Type parameter()
 	int typespec;
 	unsigned indirection;
 	string name;
+	Type t;
 
     typespec = specifier();
     indirection = pointers();
     //match(ID);
     name = identifier();
 
-    Type t = Type(typespec, indirection);
+    t = Type(typespec, indirection);
     decVar(name, t);
     return t;
 }
@@ -720,6 +725,7 @@ static void globalDeclarator(int typespec)
 
 	unsigned indirection;
 	string name;
+	Parameters* params;
 
     indirection = pointers();
     //match(ID);
@@ -738,7 +744,12 @@ static void globalDeclarator(int typespec)
 
 		match('(');
 		//parameters();
-		decFn(name, Type(typespec, indirection, parameters()) );
+
+		openScope();
+		params = parameters();
+		closeScope();
+
+		decFn(name, Type(typespec, indirection, params) );
 		match(')');
 
     } else if (lookahead == '[') {
@@ -800,7 +811,6 @@ static void globalOrFunction()
 	int typespec;
 	unsigned indirection;
 	string name;
-	//unsigned num;
 	Parameters* params;
 
     typespec = specifier();
@@ -834,13 +844,13 @@ static void globalOrFunction()
 
 		match('(');
 
+
 		openScope();
 
 		params = parameters();
 		match(')');
 
 		if (lookahead == '{') { //fn def
-		    //openScope();
 
 		    
 		    match('{');
@@ -860,6 +870,7 @@ static void globalOrFunction()
 		    remainingDeclarators(typespec);
 		}
 
+
     } else{
 
     	if(debug == 1){
@@ -867,6 +878,7 @@ static void globalOrFunction()
 	    }
 
     	//var
+
     	decVar(name, Type(typespec, indirection) );
 
 		if(debug == 1){

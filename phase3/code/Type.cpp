@@ -105,7 +105,7 @@ ostream &operator <<(ostream &ostr, Type &type)
 			break;
 	}
 
-    if (type.indirection() > 0)
+    if (type.indirection() >= 1)
 		ostr << " " << string(type.indirection(), '*');
 
     if (type.isArray())

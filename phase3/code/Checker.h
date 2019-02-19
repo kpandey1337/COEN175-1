@@ -6,7 +6,10 @@
 Scope* openScope();
 Scope* closeScope();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c2f69d1e17f6f36a4d1388f8cf904979b9376c83
 bool functionPreviouslyDefined(const std::string &name);
 
 void decFn(
