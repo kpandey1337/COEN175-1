@@ -3,13 +3,8 @@
 
 #include "Scope.h"
 
-<<<<<<< HEAD
-void openScope();
-void closeScope();
-=======
 Scope* openScope();
 Scope* closeScope();
->>>>>>> master
 
 bool functionPreviouslyDefined(const std::string &name);
 

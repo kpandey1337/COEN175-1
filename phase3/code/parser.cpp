@@ -843,22 +843,14 @@ static void globalOrFunction()
 	    }
 
 		match('(');
-<<<<<<< HEAD
-		openScope();
-=======
+
 
 		openScope();
 
->>>>>>> master
 		params = parameters();
 		match(')');
 
 		if (lookahead == '{') { //fn def
-<<<<<<< HEAD
-		    
-=======
-		    //openScope();
->>>>>>> master
 
 		    
 		    match('{');
@@ -878,9 +870,7 @@ static void globalOrFunction()
 		    remainingDeclarators(typespec);
 		}
 
-<<<<<<< HEAD
-    } else{ //var
-=======
+
     } else{
 
     	if(debug == 1){
@@ -888,7 +878,7 @@ static void globalOrFunction()
 	    }
 
     	//var
->>>>>>> master
+
     	decVar(name, Type(typespec, indirection) );
 
 		if(debug == 1){
