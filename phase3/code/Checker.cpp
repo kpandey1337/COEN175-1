@@ -22,6 +22,7 @@ static int checker_debug = 0;
 static Scope* globalScope = nullptr;
 static Scope* currentScope = nullptr;
 
+<<<<<<< HEAD
 static vector<string> definedFunctions;
 
 static int scopeCount = 0;
@@ -29,6 +30,16 @@ extern int lineno;
 
 
 void openScope(){
+=======
+static int scopeCounter = 0;
+static int checker_debug = 1;
+
+extern int lineno;
+
+static vector<string> definedFunctions;
+
+Scope* openScope(){
+>>>>>>> master
 
 	currentScope = new Scope(currentScope);
 	//initially, currentScope == nullptr so the globalScope->_enclosing == nullptr afterwards
@@ -42,22 +53,40 @@ void openScope(){
 		assert(globalScope->enclosing() == nullptr);
 	}
 
+<<<<<<< HEAD
 	return;
 }
 
 void closeScope(){
 	Scope* deleteScope;
 	deleteScope = currentScope;
+=======
+	if(checker_debug == 1){
+    	cout << "Scope Counter: "<< ++scopeCounter <<". On line: " << lineno << endl;
+    }
+
+	return currentScope;
+}
+
+Scope* closeScope(){
+	Scope* closeScope = currentScope;
+>>>>>>> master
 
 	currentScope = currentScope->enclosing();
 
-	delete deleteScope;
+	if(checker_debug == 1){
+    	cout << "Scope Counter: "<< --scopeCounter <<". On line: " << lineno << endl;
+    }
 
+<<<<<<< HEAD
 	if(checker_debug == 1){
 		cout << "\tCLOS SC: " << scopeCount-- << ". Line: "<< lineno << endl;
 	}
 
 	return;
+=======
+	return closeScope;
+>>>>>>> master
 
 }
 
@@ -106,9 +135,15 @@ void defFn(const std::string &name, const Type &type){
 	if(sym != nullptr){
 		//so previously declared or defined
 		
+<<<<<<< HEAD
 		if( sym->type().isFunction() && definedFlag && sym->type().parameters() ){ //check for re-definition
 			delete sym->type().parameters(); //recall to delete things off the heap!! this is relevant to why the parameters were disappearing
+=======
+		if( sym->type().isFunction() && sym->type().parameters() ){ //check for re-definition
+>>>>>>> master
 			report(E1, sym->name());
+			delete sym->type().parameters(); //mem leak 2
+			
 		}
 		else if(sym->type() != type){ //should be a function, but more than that should be Type::==
 			report(E3, sym->name());
@@ -122,12 +157,20 @@ void defFn(const std::string &name, const Type &type){
 	sym = new Symbol(name, type);
 	globalScope->insert(sym);
 
+<<<<<<< HEAD
 	//add name to functions that have been defined
 	//if it wasn't previously defined, to save on space complexity
 	if(!definedFlag)
 		definedFunctions.push_back(name);
 
 	return;
+=======
+	
+
+
+
+	return sym;
+>>>>>>> master
 }
 
 void decVar(const std::string &name, const Type &type){
@@ -164,9 +207,14 @@ void checkFn(const std::string &name){
 	return;
 }
 
+<<<<<<< HEAD
 void checkID(const std::string &name){
 	Symbol* sym;
 	sym = currentScope->lookup(name);
+=======
+Symbol* checkID(const std::string &name){
+	Symbol* sym = currentScope->lookup(name);
+>>>>>>> master
 
 	if(sym == nullptr){
 		Type error; //use default constructor for Type to create an error Type

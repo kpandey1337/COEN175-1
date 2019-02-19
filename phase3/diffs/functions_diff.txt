@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 1,2c1,2
 < line 9: conflicting types for ’foo’
 < line 16: conflicting types for ’foobar’
 ---
+=======
+0a1,2
+>>>>>>> master
 > line 9: conflicting types for 'foo'
 > line 16: conflicting types for 'foobar'

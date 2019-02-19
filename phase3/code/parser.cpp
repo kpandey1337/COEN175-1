@@ -23,6 +23,7 @@ static void expression();
 static void statement();
 static void match(int t);
 
+extern int lineno;
 
 /* Phase 3 Functions */
 
@@ -263,6 +264,8 @@ static void primaryExpression(bool lparenMatched)
 		    }
 	    	
 	    	checkFn(name);		    
+
+		    //if you dont go into the if, implicitly declared
 
 		    match(')');
 		}
@@ -728,7 +731,17 @@ static void globalDeclarator(int typespec)
     //match(ID);
     name = identifier();
 
+    int debug = 0;
+    if(name == "f"){
+    	debug = 1;
+    }
+
     if (lookahead == '(') {
+    	if(debug == 1){
+	    	cout << lineno << ":In path 1" << endl;
+	    }
+
+
 		match('(');
 		//parameters();
 
@@ -740,12 +753,21 @@ static void globalDeclarator(int typespec)
 		match(')');
 
     } else if (lookahead == '[') {
+    	if(debug == 1){
+	    	cout << lineno << ":In path 2" << endl;
+	    }
+
+
 		match('[');
 		//match(INTEGER);
 		decVar(name, Type(typespec, indirection, integer()) );
 		match(']');
     }
-    else{
+    else {
+    	if(debug == 1){
+	    	cout << lineno << ":In path 3" << endl;
+	    }
+
     	decVar(name, Type(typespec, indirection) );
     }
 }
@@ -795,9 +817,17 @@ static void globalOrFunction()
     indirection = pointers();
     name = identifier();
 
-
+    int debug = 0;
+    if(name == "f" || name == "z"){
+    	debug = 1;
+    	cout << "Name: " << name << ". lookahead: " << lookahead << endl;
+    }
 
     if (lookahead == '[') {
+		if(debug == 1){
+	    	cout << lineno << ":In path 1" << endl;
+	    }
+
 		match('[');
 		//match(INTEGER);
 		//num = integer();
@@ -808,15 +838,29 @@ static void globalOrFunction()
 		remainingDeclarators(typespec);
 
     } else if (lookahead == '(') {
+    	if(debug == 1){
+	    	cout << lineno << ":In path 2" << endl;
+	    }
+
 		match('(');
+<<<<<<< HEAD
 		openScope();
+=======
+
+		openScope();
+
+>>>>>>> master
 		params = parameters();
 		match(')');
 
 		if (lookahead == '{') { //fn def
+<<<<<<< HEAD
 		    
+=======
+		    //openScope();
+>>>>>>> master
 
-		    defFn(name, Type(typespec, indirection, params) );
+		    
 		    match('{');
 		    declarations();
 		    statements();
@@ -824,6 +868,8 @@ static void globalOrFunction()
 		    closeScope();
 
 		    match('}');
+		    
+		    defFn(name, Type(typespec, indirection, params) );
 
 		} else{ //fn dec
 
@@ -832,9 +878,27 @@ static void globalOrFunction()
 		    remainingDeclarators(typespec);
 		}
 
+<<<<<<< HEAD
     } else{ //var
+=======
+    } else{
+
+    	if(debug == 1){
+	    	cout << lineno << ":In path 3" << endl;
+	    }
+
+    	//var
+>>>>>>> master
     	decVar(name, Type(typespec, indirection) );
+
+		if(debug == 1){
+			cerr << "after decVar" << endl;
+	    }
+
 		remainingDeclarators(typespec);
+    }
+    if(debug == 1){
+    	cout << "returning from name: " << name << endl;
     }
 }
 
@@ -847,7 +911,10 @@ static void globalOrFunction()
 
 int main()
 {
-
+	int debug = 1;
+	if(debug == 1){
+    	cout << "Opening global scope!" << endl;
+    }
 	openScope();
 
     lookahead = lexan(lexbuf);
