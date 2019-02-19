@@ -1,7 +1,10 @@
 line 5: conflicting types for ’a’
 line 7: conflicting types for ’x’
 line 10: conflicting types for ’g’
+<<<<<<< HEAD
+=======
 line 18: redefinition of ’f’
 after decVar
+>>>>>>> master
 line 18: conflicting types for ’f’
 line 21: conflicting types for ’h’

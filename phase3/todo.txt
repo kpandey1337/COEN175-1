@@ -18,3 +18,6 @@ definitions:
 implicitly declared:
 	flag?
 	where to implicitly declare?
+	the type shouldn't check parameters if implicitly declared
+		already done
+	

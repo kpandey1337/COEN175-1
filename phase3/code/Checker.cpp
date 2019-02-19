@@ -17,9 +17,20 @@
 
 using namespace std;
 
+static int checker_debug = 0;
+
 static Scope* globalScope = nullptr;
 static Scope* currentScope = nullptr;
 
+<<<<<<< HEAD
+static vector<string> definedFunctions;
+
+static int scopeCount = 0;
+extern int lineno;
+
+
+void openScope(){
+=======
 static int scopeCounter = 0;
 static int checker_debug = 1;
 
@@ -28,15 +39,28 @@ extern int lineno;
 static vector<string> definedFunctions;
 
 Scope* openScope(){
+>>>>>>> master
 
 	currentScope = new Scope(currentScope);
-	//currentScope passed as parameter to create a LL of scopes
+	//initially, currentScope == nullptr so the globalScope->_enclosing == nullptr afterwards
+
+	if(checker_debug == 1){
+		cout << "\tOPEN SC: " << ++scopeCount << ". Line: "<< lineno << endl;
+	}
 
 	if(globalScope == nullptr){
 		globalScope = currentScope;
-		assert(globalScope->enclosing() == NULL);
+		assert(globalScope->enclosing() == nullptr);
 	}
 
+<<<<<<< HEAD
+	return;
+}
+
+void closeScope(){
+	Scope* deleteScope;
+	deleteScope = currentScope;
+=======
 	if(checker_debug == 1){
     	cout << "Scope Counter: "<< ++scopeCounter <<". On line: " << lineno << endl;
     }
@@ -46,6 +70,7 @@ Scope* openScope(){
 
 Scope* closeScope(){
 	Scope* closeScope = currentScope;
+>>>>>>> master
 
 	currentScope = currentScope->enclosing();
 
@@ -53,36 +78,69 @@ Scope* closeScope(){
     	cout << "Scope Counter: "<< --scopeCounter <<". On line: " << lineno << endl;
     }
 
+<<<<<<< HEAD
+	if(checker_debug == 1){
+		cout << "\tCLOS SC: " << scopeCount-- << ". Line: "<< lineno << endl;
+	}
+
+	return;
+=======
 	return closeScope;
+>>>>>>> master
 
 }
 
-Symbol* decFn(const std::string &name, const Type &type){
-	Symbol* sym = globalScope->find(name);
+bool functionPreviouslyDefined(const std::string &name){
+	int l = definedFunctions.size();
+	for(int i = 0; i < l; i++){
+		if(name == definedFunctions[i]){
+			return true;
+		}
+	}
+	return false;
+}
+
+void decFn(const std::string &name, const Type &type){
+	Symbol* sym;
+	sym = globalScope->find(name);
 
 	if(sym == nullptr){ //previously undeclared
 		sym = new Symbol(name, type);
 		globalScope->insert(sym);
 	}
 	else if(type != sym->type()){ //previously declared, must be exactly the same type
-		delete type.parameters(); //mem leak 1
 		report(E3,sym->name());
+
+		// "Any subsequent declaration or definition always replaces any previous declaration or definition, even it erroneous"
+		// remove the old symbol and replace it with new one
+		currentScope->remove(sym->name());
+		currentScope->insert(new Symbol(name, type));
 	}
 
-	return sym;
+	return;
 }
 
 //Note the differences between: . and ->
 // (*foo).bar() == foo->bar()
 //https://stackoverflow.com/questions/1238613/what-is-the-difference-between-the-dot-operator-and-in-c
 
-Symbol* defFn(const std::string &name, const Type &type){
-	Symbol* sym = globalScope->find(name);
+void defFn(const std::string &name, const Type &type){
+	Symbol* sym;
+	bool definedFlag;
+
+	sym = globalScope->find(name);
+	definedFlag = functionPreviouslyDefined(name);
+
 
 	if(sym != nullptr){
 		//so previously declared or defined
 		
+<<<<<<< HEAD
+		if( sym->type().isFunction() && definedFlag && sym->type().parameters() ){ //check for re-definition
+			delete sym->type().parameters(); //recall to delete things off the heap!! this is relevant to why the parameters were disappearing
+=======
 		if( sym->type().isFunction() && sym->type().parameters() ){ //check for re-definition
+>>>>>>> master
 			report(E1, sym->name());
 			delete sym->type().parameters(); //mem leak 2
 			
@@ -99,22 +157,32 @@ Symbol* defFn(const std::string &name, const Type &type){
 	sym = new Symbol(name, type);
 	globalScope->insert(sym);
 
+<<<<<<< HEAD
+	//add name to functions that have been defined
+	//if it wasn't previously defined, to save on space complexity
+	if(!definedFlag)
+		definedFunctions.push_back(name);
+
+	return;
+=======
 	
 
 
 
 	return sym;
+>>>>>>> master
 }
 
-Symbol* decVar(const std::string &name, const Type &type){
-	Symbol* sym = currentScope->find(name);
+void decVar(const std::string &name, const Type &type){
+	Symbol* sym;
+	sym = currentScope->find(name);
 
 	if(sym != nullptr){
 		//already exists
 		if(globalScope != currentScope){ //redeclarations only valid in global scope
 			report(E2, name);
 		}
-		else if(sym->type() != type){
+		else if(sym->type() != type){ //conflicting types error, but else if to only throw one
 			report(E3, name);
 		}
 	}
@@ -123,21 +191,40 @@ Symbol* decVar(const std::string &name, const Type &type){
 		currentScope->insert(sym);
 	}
 
-	return sym;
+	return;
 }
 
-Symbol* checkID(const std::string &name){
-	Symbol* sym = currentScope->lookup(name);
+void checkFn(const std::string &name){
+	Symbol* sym;
+	sym = globalScope->find(name);
 
 	if(sym == nullptr){
-		Type error;
+		//case where implicit declaration needs to happen
+		//does this need to be a >> new Type(...)?
+		decFn(name, Type(INT, 0, nullptr));
+
+	}
+	return;
+}
+
+<<<<<<< HEAD
+void checkID(const std::string &name){
+	Symbol* sym;
+	sym = currentScope->lookup(name);
+=======
+Symbol* checkID(const std::string &name){
+	Symbol* sym = currentScope->lookup(name);
+>>>>>>> master
+
+	if(sym == nullptr){
+		Type error; //use default constructor for Type to create an error Type
 		sym = new Symbol(name, error);
 		currentScope->insert(sym);
 
 		report(E4, name);
 	}
 
-	return sym;
+	return;
 }
 
 

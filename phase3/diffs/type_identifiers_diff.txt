@@ -1,0 +1,2 @@
+1d0
+< line 3: conflicting types for ’testfun’
