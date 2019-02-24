@@ -58,7 +58,9 @@ public:
 
     Type promote() const;
     bool isNumeric() const;
+    bool isInteger() const;
     bool isPredicate() const;
+    bool isPointer() const;
     bool isCompatibleWith(const Type& that) const;
 };
 

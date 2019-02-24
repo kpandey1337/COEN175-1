@@ -243,12 +243,24 @@ Type Type::promote() const{
 }
 
 bool Type::isNumeric() const{
-    return(_kind == SCALAR);
+    Type tmp = this->promote();
+
+    return(tmp.isScalar());
+}
+
+bool Type::isInteger() const{
+    return((_specifier == INTEGER) && isNumeric() );
 }
 
 bool Type::isPredicate() const{
     //return(isNumeric() || isPointer());
     return(_kind == SCALAR || _kind == ARRAY);
+}
+
+bool Type::isPointer() const{
+    Type tmp = this->promote();
+
+    return( tmp.isArray() || (tmp.isScalar() && tmp.indirection() > 0));
 }
 
 bool Type::isCompatibleWith(const Type& that) const{

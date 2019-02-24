@@ -21,7 +21,7 @@ using namespace std;
 
 static set<string> funcdefns;
 static Scope *outermost, *toplevel;
-static const Type error;
+
 
 static string redefined = "redefinition of '%s'";
 static string redeclared = "redeclaration of '%s'";
@@ -37,9 +37,11 @@ static string undeclared = "'%s' undeclared";
 #define E7 "called object is not a function"
 #define E8 "invalid arguments to called function"
 
+static const Type error;
 static Type integer(INT);
 static Type real(DOUBLE);
 static Type character(CHAR);
+
 
 /*
  * Function:	openScope
@@ -197,9 +199,262 @@ Symbol *checkFunction(const string &name)
     return symbol;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*  Phase 4  */
 
-Type checkEqualityExpression(const Type& left, const Type& right){
+//primaryExpression
+
+Type checkFunctionType(const Symbol& sym, Parameters* arguments){
+    if(sym.type().isFunction()){
+
+        //Check if function is defined
+        if(funcdefns.count(sym.name()) ){
+
+            //if defined and parameters match, return type of function
+            if(sym.type().parameters() == arguments){ 
+
+                //function returning T -> T (where T is defined by specifier and indirection)
+                return( Type(sym.type().specifier(), sym.type().indirection() ) );
+            }
+            else{
+                report(E8);
+                return error;
+            }
+        }
+        else{
+            //If function not defined, return implicit function type
+            return(Type(INT, 0, nullptr));            
+        }
+    }
+    report(E7);
+    return error;
+}
+
+Type checkIdentifierType(const Type& left, bool& lvalue){
+    if(left.isScalar()){
+        lvalue = true;
+    }
+    return left;
+}
+
+
+//postfixExpression
+
+Type checkIndex(const Type& left, const Type& right){
+    Type lt = left.promote();
+    Type rt = right.promote();
+
+    if(lt.isPointer() && rt.isInteger()){
+        return Type(lt.specifier(), lt.indirection()-1);
+    }
+    report(E4, "[]");
+    return error;
+}
+
+//prefixExpression
+
+Type checkNot(const Type& left){
+    if(left.isPredicate()){
+        return integer;
+    }
+    report(E5, "!");
+    return error;
+}
+
+Type checkNegate(const Type& left){
+    if(left.isNumeric()){
+        return left;
+    }
+    report(E5, "-");
+    return error;
+}
+
+Type checkDereference(const Type& left){
+    if(left.isPointer()){
+        return Type(left.specifier(), left.indirection()-1);
+    }
+    report(E5, "*");
+    return error;
+}
+
+Type checkAddress(const Type& left, bool& lvalue){
+    if(lvalue == true){
+        return Type(left.specifier(), left.indirection()+1);
+    }
+    report(E3, "&");
+    return error;
+}
+
+Type checkSizeOf(const Type& left){
+    return integer;
+}
+
+Type checkTypeCast(const Type& left, int typespec, unsigned indirection){
+    Type result = Type(typespec, indirection);
+
+    if(result.isNumeric() && left.isNumeric()){
+        return result;
+    }
+    else if(result.isPointer() && left.isPointer()){
+        return result;
+    }
+    else if(result.isPointer() && left.isInteger()){
+        return result;
+    }
+    else if(left.isPointer() && result.isInteger()){
+        return result;
+    }
+    report(E6);
+    return error;
+}
+
+
+
+//multiplicativeExpression
+
+Type checkMultiply(const Type& left, const Type& right){
+    if(left.isNumeric() && right.isNumeric()){
+        if(left.specifier() == DOUBLE || right.specifier() == DOUBLE){
+            return real;
+        }
+        else{
+            return integer;
+        }
+    }
+    report(E4, "*");
+    return error;
+}
+
+Type checkDivide(const Type& left, const Type& right){
+    if(left.isNumeric() && right.isNumeric()){
+        if(left.specifier() == DOUBLE || right.specifier() == DOUBLE){
+            return real;
+        }
+        else{
+            return integer;
+        }
+    }
+    report(E4, "/");
+    return error;
+}
+
+Type checkModulo(const Type& left, const Type& right){
+    if(left.isInteger() && right.isInteger()){
+        return integer;
+    }
+    report(E4, "%");
+    return error;
+}
+
+//additiveExpression
+
+Type checkAdd(const Type& left, const Type& right){
+    Type lt = left.promote();
+    Type rt = right.promote();
+
+    if(lt.isNumeric() and rt.isNumeric()){
+        
+        if(lt.specifier() == DOUBLE || rt.specifier() == DOUBLE){
+            return real;
+        }
+        else if(lt.isPointer() && rt.isInteger()){ 
+            return lt;
+        }
+        else if(lt.isInteger() && rt.isPointer()){
+            return rt;
+        }
+    }
+    report(E4, "+");
+    return error;
+
+}
+
+Type checkSub(const Type& left, const Type& right){
+
+    Type lt = left.promote();
+    Type rt = right.promote();
+
+    if(lt.isNumeric() and rt.isNumeric()){
+
+        if(lt.specifier() == DOUBLE || rt.specifier() == DOUBLE){
+            return real;
+        }
+        else if(lt.isPointer() && rt.isInteger()){ 
+            return lt;
+        }
+        else if(lt.isPointer() && rt.isPointer() && lt.specifier() == rt.specifier()){ //do I have to check that pointer types are the same? last argument
+            return integer;
+        }
+        
+    }
+    report(E4, "-");
+    return error;
+
+}
+
+//relationalExpression
+
+Type checkLessThan(const Type& left, const Type& right){
+
+    if(left.isCompatibleWith(right)){
+        return integer;
+    }
+    report(E4, "<");
+    return error;
+
+}
+
+Type checkLessThanEqual(const Type& left, const Type& right){
+
+    if(left.isCompatibleWith(right)){
+        return integer;
+    }
+    report(E4, "<=");
+    return error;
+
+}
+
+Type checkGreaterThan(const Type& left, const Type& right){
+
+    if(left.isCompatibleWith(right)){
+        return integer;
+    }
+    report(E4, ">");
+    return error;
+
+}
+
+Type checkGreaterThanEqual(const Type& left, const Type& right){
+
+    if(left.isCompatibleWith(right)){
+        return integer;
+    }
+    report(E4, ">=");
+    return error;
+
+}
+
+//equalityExpression
+
+Type checkEquals(const Type& left, const Type& right){
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -211,7 +466,7 @@ Type checkEqualityExpression(const Type& left, const Type& right){
 
 Type checkNotEquals(const Type& left, const Type& right){
 
-    if(left.isPredicate() && right.isPredicate()){
+    if(left.isCompatibleWith(right)){
         return integer;
     }
     report(E4, "!=");
@@ -219,15 +474,7 @@ Type checkNotEquals(const Type& left, const Type& right){
 
 }
 
-Type checkEquals(const Type& left, const Type& right){
-
-    if(left.isPredicate() && right.isPredicate()){
-        return integer;
-    }
-    report(E4, "==");
-    return error;
-
-}
+//logicalAndExpression
 
 Type checkLogicalAnd(const Type& left, const Type& right){
 
@@ -238,6 +485,8 @@ Type checkLogicalAnd(const Type& left, const Type& right){
     return error;
 
 }
+
+//logicalOrExpression
 
 Type checkLogicalOr(const Type& left, const Type& right){
 
