@@ -18,7 +18,7 @@ static int lookahead;
 static string lexbuf;
 
 static Type expression(bool& lvalue);
-static void statement();
+static void statement(Symbol& function);
 
 
 /*
@@ -677,10 +677,10 @@ static Type expression(bool& lvalue)
  *		  statement statements
  */
 
-static void statements()
+static void statements(Symbol& function)
 {
     while (lookahead != '}')
-	statement();
+		statement(function);
 }
 
 
@@ -700,49 +700,61 @@ static void statements()
  *		  expression ;
  */
 
-static void statement()
+static void statement(Symbol& function)
 {
+	bool lvalue, lvalue_preserved;
+	Type left, right;
+
     if (lookahead == '{') {
 		match('{');
 		openScope();
 		declarations();
-		statements();
+		statements(function);
 		closeScope();
 		match('}');
 
     } else if (lookahead == RETURN) {
 		match(RETURN);
-		expression();
+		left = expression(lvalue);
+
+		left = checkReturnType(left, function);
 		match(';');
 
     } else if (lookahead == WHILE) {
-	match(WHILE);
-	match('(');
-	expression();
-	match(')');
-	statement();
+		match(WHILE);
+		match('(');
+		left = expression(lvalue);
+
+		left = checkWhile(left);
+		match(')');
+		statement(function);
 
     } else if (lookahead == IF) {
-	match(IF);
-	match('(');
-	expression();
-	match(')');
-	statement();
+		match(IF);
+		match('(');
+		left = expression(lvalue);
+
+		left = checkIf(left);
+		match(')');
+		statement(function);
 
 	if (lookahead == ELSE) {
 	    match(ELSE);
-	    statement();
+	    statement(function);
 	}
 
     } else {
-	expression();
+		left = expression(lvalue);
+		lvalue_preserved = lvalue;
 
-	if (lookahead == '=') {
-	    match('=');
-	    expression();
-	}
+		if (lookahead == '=') {
+		    match('=');
+		    right = expression(lvalue);
 
-	match(';');
+		    left = checkAssignment(left, right, lvalue_preserved);
+		}
+
+		match(';');
     }
 }
 
@@ -891,39 +903,40 @@ static void globalOrFunction()
     Parameters *params;
     string name;
 
+    Symbol* function;
 
     typespec = specifier();
     indirection = pointers();
     name = identifier();
 
     if (lookahead == '[') {
-	match('[');
-	declareVariable(name, Type(typespec, indirection, integer()));
-	match(']');
-	remainingDeclarators(typespec);
+		match('[');
+		declareVariable(name, Type(typespec, indirection, integer()));
+		match(']');
+		remainingDeclarators(typespec);
 
     } else if (lookahead == '(') {
-	match('(');
-	params = parameters();
-	match(')');
+		match('(');
+		params = parameters();
+		match(')');
 
-	if (lookahead == '{') {
-	    defineFunction(name, Type(typespec, indirection, params));
-	    match('{');
-	    declarations();
-	    statements();
-	    closeScope();
-	    match('}');
+		if (lookahead == '{') {
+		    function = defineFunction(name, Type(typespec, indirection, params));
+		    match('{');
+		    declarations();
+		    statements(*function);
+		    closeScope();
+		    match('}');
 
-	} else {
-	    closeScope();
-	    declareFunction(name, Type(typespec, indirection, params));
-	    remainingDeclarators(typespec);
-	}
+		} else {
+		    closeScope();
+		    declareFunction(name, Type(typespec, indirection, params));
+		    remainingDeclarators(typespec);
+		}
 
     } else {
-	declareVariable(name, Type(typespec, indirection));
-	remainingDeclarators(typespec);
+		declareVariable(name, Type(typespec, indirection));
+		remainingDeclarators(typespec);
     }
 }
 

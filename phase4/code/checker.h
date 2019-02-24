@@ -51,4 +51,9 @@ Type checkEquals(const Type& left, const Type& right);
 Type checkLogicalAnd(const Type& left, const Type& right);
 Type checkLogicalOr(const Type& left, const Type& right);
 
+Type checkReturnType(const Type& left, Symbol& function);
+Type checkWhile(const Type& left);
+Type checkIf(const Type& left);
+Type checkAssignment(const Type& left, const Type& right, bool& left_lvalue);
+
 # endif /* CHECKER_H */

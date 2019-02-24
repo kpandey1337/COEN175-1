@@ -498,5 +498,45 @@ Type checkLogicalOr(const Type& left, const Type& right){
 
 }
 
+//Statements
+
+Type checkReturnType(const Type& left, Symbol& function){
+    if(left == function.type().specifier()){
+        return left;
+    }
+    report(E1);
+    return error;
+}
+
+Type checkWhile(const Type& left){
+    if(left.isPredicate()){
+        return left;
+    }
+    report(E2);
+    return error;
+}
+
+Type checkIf(const Type& left){
+    if(left.isPredicate()){
+        return left;
+    }
+    report(E2);
+    return error;
+}
+
+Type checkAssignment(const Type& left, const Type& right, bool& left_lvalue){
+    if(left_lvalue != true){
+        report(E3);
+        return error;
+    }
+    if(!left.isCompatibleWith(right)){
+        report(E4);
+        return error;
+    }
+    return left;
+}
+
+
+
 
 
