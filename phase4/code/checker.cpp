@@ -231,15 +231,18 @@ Type checkFunctionType(const Symbol& sym, Parameters* arguments){
 
 
             //if defined and parameters match, return type of function
-            if(params->size() == arguments->size() && *params == *arguments){ 
-
+            if(params->size() == arguments->size()){ 
+                for(unsigned i = 0; i < params->size(); i++){
+                    if(!(*arguments)[i].isCompatibleWith((*params)[i])){
+                        report(E8);
+                        return error;
+                    }
+                }
                 //function returning T -> T (where T is defined by specifier and indirection)
                 return( Type(sym.type().specifier(), sym.type().indirection() ) );
             }
-            else{
-                report(E8);
-                return error;
-            }
+
+
         }
         else{
             //If function not defined, return implicit function return type
