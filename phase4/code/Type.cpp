@@ -245,11 +245,11 @@ Type Type::promote() const{
 bool Type::isNumeric() const{
     Type tmp = this->promote();
 
-    return(tmp.isScalar());
+    return(tmp.isScalar() && tmp.indirection() == 0);
 }
 
 bool Type::isInteger() const{
-    return((_specifier == INTEGER) && isNumeric() );
+    return((_specifier == INT) && isNumeric() );
 }
 
 bool Type::isPredicate() const{
