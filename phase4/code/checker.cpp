@@ -194,7 +194,7 @@ Symbol *checkFunction(const string &name)
     Symbol *symbol = toplevel->lookup(name);
 
     if (symbol == nullptr)
-	symbol = declareFunction(name, Type(INT, 0, nullptr));
+	   symbol = declareFunction(name, Type(INT, 0, nullptr));
 
     return symbol;
 }
@@ -225,11 +225,13 @@ Symbol *checkFunction(const string &name)
 Type checkFunctionType(const Symbol& sym, Parameters* arguments){
     if(sym.type().isFunction()){
 
-        //Check if function is defined
-        if(funcdefns.count(sym.name()) ){
+        Parameters* params = sym.type().parameters();
+        //Check if parameters exists
+        if(params != nullptr){
+
 
             //if defined and parameters match, return type of function
-            if(sym.type().parameters() == arguments){ 
+            if(params->size() == arguments->size() && *params == *arguments){ 
 
                 //function returning T -> T (where T is defined by specifier and indirection)
                 return( Type(sym.type().specifier(), sym.type().indirection() ) );
