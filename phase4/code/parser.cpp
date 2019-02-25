@@ -226,7 +226,7 @@ static void declaration()
 static void declarations()
 {
     while (isSpecifier(lookahead))
-	declaration();
+		declaration();
 }
 
 
@@ -303,7 +303,7 @@ static Type primaryExpression(bool lparenMatched, bool& lvalue)
 		    sym = checkFunction(name);
 		    left = checkFunctionType(*sym, arguments);
 		    lvalue = false;
-		    
+
 		    match(')');
 
 
@@ -375,21 +375,21 @@ static Type prefixExpression(bool& lvalue)
 
     } else if (lookahead == '-') {
 		match('-');
-		prefixExpression(lvalue);
+		left = prefixExpression(lvalue);
 
 		left = checkNegate(left);
 		lvalue = false;
 
     } else if (lookahead == '*') {
 		match('*');
-		prefixExpression(lvalue);
+		left = prefixExpression(lvalue);
 
 		left = checkDereference(left);
 		lvalue = true;
 
     } else if (lookahead == '&') {
 		match('&');
-		prefixExpression(lvalue);
+		left = prefixExpression(lvalue);
 
 		left = checkAddress(left, lvalue);
 		lvalue = false;
@@ -416,11 +416,16 @@ static Type prefixExpression(bool& lvalue)
 		    left = checkTypeCast(left, typespec, indirection);
 		    lvalue = false;
 
-		} else
+		} else{
 		    left = postfixExpression(true, lvalue);
+		    left = left.promote();
+		}
 
-    } else
+    } else{
 		left = postfixExpression(false, lvalue);
+		left = left.promote();
+    }
+
 
 
 	return left;

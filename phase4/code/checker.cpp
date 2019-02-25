@@ -233,7 +233,10 @@ Type checkFunctionType(const Symbol& sym, Parameters* arguments){
             //if defined and parameters match, return type of function
             if(params->size() == arguments->size()){ 
                 for(unsigned i = 0; i < params->size(); i++){
-                    if(!(*arguments)[i].isCompatibleWith((*params)[i])){
+                    Type lt = (*arguments)[i].promote();
+                    Type rt = (*params)[i].promote();
+
+                    if( ( lt.isCompatibleWith(rt) )==false){
                         report(E8);
                         return error;
                     }
@@ -288,9 +291,7 @@ Type checkIndex(const Type& left, const Type& right){
 //prefixExpression
 
 Type checkNot(const Type& left){
-    if(left == error){
-        return error;
-    }
+    
     
     if(left.isPredicate()){
         return integer;
@@ -300,9 +301,7 @@ Type checkNot(const Type& left){
 }
 
 Type checkNegate(const Type& left){
-    if(left == error){
-        return error;
-    }
+
     
     if(left.isNumeric()){
         return left;
@@ -312,9 +311,6 @@ Type checkNegate(const Type& left){
 }
 
 Type checkDereference(const Type& left){
-    if(left == error){
-        return error;
-    }
     
     if(left.isPointer()){
         return Type(left.specifier(), left.indirection()-1);
@@ -324,9 +320,7 @@ Type checkDereference(const Type& left){
 }
 
 Type checkAddress(const Type& left, bool& lvalue){
-    if(left == error){
-        return error;
-    }
+
 
     if(lvalue == true){
         return Type(left.specifier(), left.indirection()+1);
@@ -336,17 +330,11 @@ Type checkAddress(const Type& left, bool& lvalue){
 }
 
 Type checkSizeOf(const Type& left){
-    if(left == error){
-        return error;
-    }
     
     return integer;
 }
 
 Type checkTypeCast(const Type& left, int typespec, unsigned indirection){
-    if(left == error){
-        return error;
-    }
 
     Type result = Type(typespec, indirection);
 
@@ -601,7 +589,9 @@ Type checkReturnType(const Type& left, Symbol& function){
         return error;
     }
     
-    if(left == function.type().specifier()){
+    Type returnType = Type(function.type().specifier(), function.type().indirection());
+
+    if( left.isCompatibleWith(returnType) ){
         return left;
     }
     report(E1);
