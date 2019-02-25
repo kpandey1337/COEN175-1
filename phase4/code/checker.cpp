@@ -240,7 +240,7 @@ Type checkFunctionType(const Symbol& sym, Parameters* arguments){
             }
         }
         else{
-            //If function not defined, return implicit function type
+            //If function not defined, return implicit function return type
             return(Type(INT, 0, nullptr));            
         }
     }
@@ -249,8 +249,15 @@ Type checkFunctionType(const Symbol& sym, Parameters* arguments){
 }
 
 Type checkIdentifierType(const Type& left, bool& lvalue){
+    if(left == error){
+        return error;
+    }
+    
     if(left.isScalar()){
         lvalue = true;
+    }
+    else{
+        lvalue = false;
     }
     return left;
 }
@@ -259,6 +266,10 @@ Type checkIdentifierType(const Type& left, bool& lvalue){
 //postfixExpression
 
 Type checkIndex(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
+    
     Type lt = left.promote();
     Type rt = right.promote();
 
@@ -272,6 +283,10 @@ Type checkIndex(const Type& left, const Type& right){
 //prefixExpression
 
 Type checkNot(const Type& left){
+    if(left == error){
+        return error;
+    }
+    
     if(left.isPredicate()){
         return integer;
     }
@@ -280,6 +295,10 @@ Type checkNot(const Type& left){
 }
 
 Type checkNegate(const Type& left){
+    if(left == error){
+        return error;
+    }
+    
     if(left.isNumeric()){
         return left;
     }
@@ -288,6 +307,10 @@ Type checkNegate(const Type& left){
 }
 
 Type checkDereference(const Type& left){
+    if(left == error){
+        return error;
+    }
+    
     if(left.isPointer()){
         return Type(left.specifier(), left.indirection()-1);
     }
@@ -296,6 +319,10 @@ Type checkDereference(const Type& left){
 }
 
 Type checkAddress(const Type& left, bool& lvalue){
+    if(left == error){
+        return error;
+    }
+
     if(lvalue == true){
         return Type(left.specifier(), left.indirection()+1);
     }
@@ -304,10 +331,18 @@ Type checkAddress(const Type& left, bool& lvalue){
 }
 
 Type checkSizeOf(const Type& left){
+    if(left == error){
+        return error;
+    }
+    
     return integer;
 }
 
 Type checkTypeCast(const Type& left, int typespec, unsigned indirection){
+    if(left == error){
+        return error;
+    }
+
     Type result = Type(typespec, indirection);
 
     if(result.isNumeric() && left.isNumeric()){
@@ -331,6 +366,10 @@ Type checkTypeCast(const Type& left, int typespec, unsigned indirection){
 //multiplicativeExpression
 
 Type checkMultiply(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
+
     if(left.isNumeric() && right.isNumeric()){
         if(left.specifier() == DOUBLE || right.specifier() == DOUBLE){
             return real;
@@ -344,6 +383,10 @@ Type checkMultiply(const Type& left, const Type& right){
 }
 
 Type checkDivide(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
+
     if(left.isNumeric() && right.isNumeric()){
         if(left.specifier() == DOUBLE || right.specifier() == DOUBLE){
             return real;
@@ -357,37 +400,56 @@ Type checkDivide(const Type& left, const Type& right){
 }
 
 Type checkModulo(const Type& left, const Type& right){
-    if(left.isInteger() && right.isInteger()){
+    if(left == error || right == error){
+        return error;
+    }
+    Type lt = left.promote();
+    Type rt = right.promote();
+
+    if(lt.isInteger() && rt.isInteger()){
         return integer;
     }
     report(E4, "%");
     return error;
 }
 
+
 //additiveExpression
 
 Type checkAdd(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
+
     Type lt = left.promote();
     Type rt = right.promote();
 
-    if(lt.isNumeric() and rt.isNumeric()){
+    if(lt.isNumeric() && rt.isNumeric()){
         
         if(lt.specifier() == DOUBLE || rt.specifier() == DOUBLE){
             return real;
         }
-        else if(lt.isPointer() && rt.isInteger()){ 
-            return lt;
+        else{
+            return integer;
         }
-        else if(lt.isInteger() && rt.isPointer()){
-            return rt;
-        }
+       
     }
+    else if(lt.isPointer() && rt.isInteger()){ 
+        return lt;
+    }
+    else if(lt.isInteger() && rt.isPointer()){
+        return rt;
+    }
+
     report(E4, "+");
     return error;
 
 }
 
 Type checkSub(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     Type lt = left.promote();
     Type rt = right.promote();
@@ -397,14 +459,19 @@ Type checkSub(const Type& left, const Type& right){
         if(lt.specifier() == DOUBLE || rt.specifier() == DOUBLE){
             return real;
         }
-        else if(lt.isPointer() && rt.isInteger()){ 
-            return lt;
-        }
-        else if(lt.isPointer() && rt.isPointer() && lt.specifier() == rt.specifier()){ //do I have to check that pointer types are the same? last argument
+        else{
             return integer;
         }
         
+        
     }
+    else if(lt.isPointer() && right.isInteger()){ 
+        return lt;
+    }
+    else if(lt.isPointer() && rt.isPointer() && lt.specifier() == rt.specifier()){ //do I have to check that pointer types are the same? last argument
+        return integer;
+    }
+
     report(E4, "-");
     return error;
 
@@ -413,6 +480,9 @@ Type checkSub(const Type& left, const Type& right){
 //relationalExpression
 
 Type checkLessThan(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -423,6 +493,9 @@ Type checkLessThan(const Type& left, const Type& right){
 }
 
 Type checkLessThanEqual(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -433,6 +506,9 @@ Type checkLessThanEqual(const Type& left, const Type& right){
 }
 
 Type checkGreaterThan(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -443,6 +519,9 @@ Type checkGreaterThan(const Type& left, const Type& right){
 }
 
 Type checkGreaterThanEqual(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -455,6 +534,9 @@ Type checkGreaterThanEqual(const Type& left, const Type& right){
 //equalityExpression
 
 Type checkEquals(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -465,6 +547,9 @@ Type checkEquals(const Type& left, const Type& right){
 }
 
 Type checkNotEquals(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isCompatibleWith(right)){
         return integer;
@@ -477,6 +562,9 @@ Type checkNotEquals(const Type& left, const Type& right){
 //logicalAndExpression
 
 Type checkLogicalAnd(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isPredicate() && right.isPredicate()){
         return integer;
@@ -489,6 +577,9 @@ Type checkLogicalAnd(const Type& left, const Type& right){
 //logicalOrExpression
 
 Type checkLogicalOr(const Type& left, const Type& right){
+    if(left == error || right == error){
+        return error;
+    }
 
     if(left.isPredicate() && right.isPredicate()){
         return integer;
@@ -501,6 +592,10 @@ Type checkLogicalOr(const Type& left, const Type& right){
 //Statements
 
 Type checkReturnType(const Type& left, Symbol& function){
+    if(left == error){
+        return error;
+    }
+    
     if(left == function.type().specifier()){
         return left;
     }
@@ -509,6 +604,10 @@ Type checkReturnType(const Type& left, Symbol& function){
 }
 
 Type checkWhile(const Type& left){
+    if(left == error){
+        return error;
+    }
+
     if(left.isPredicate()){
         return left;
     }
@@ -517,6 +616,10 @@ Type checkWhile(const Type& left){
 }
 
 Type checkIf(const Type& left){
+    if(left == error){
+        return error;
+    }
+
     if(left.isPredicate()){
         return left;
     }
@@ -525,12 +628,17 @@ Type checkIf(const Type& left){
 }
 
 Type checkAssignment(const Type& left, const Type& right, bool& left_lvalue){
+
+    if(left == error || right == error){
+        return error;
+    }
+    
     if(left_lvalue != true){
         report(E3);
         return error;
     }
-    if(!left.isCompatibleWith(right)){
-        report(E4);
+    if(left.isCompatibleWith(right) == false){
+        report(E4, "=");
         return error;
     }
     return left;

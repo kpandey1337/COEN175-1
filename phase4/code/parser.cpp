@@ -268,7 +268,7 @@ static Type primaryExpression(bool lparenMatched, bool& lvalue)
     } else if (lookahead == INTEGER) {
 		match(INTEGER);
 
-		left = Type(INTEGER);
+		left = Type(INT);
 		lvalue = false;
 
     } else if (lookahead == REAL) {
@@ -300,11 +300,12 @@ static Type primaryExpression(bool lparenMatched, bool& lvalue)
 				}
 		    }
 
-		    match(')');
-
 		    sym = checkFunction(name);
 		    left = checkFunctionType(*sym, arguments);
 		    lvalue = false;
+		    
+		    match(')');
+
 
 		} else{
 	   		sym = checkIdentifier(name);
