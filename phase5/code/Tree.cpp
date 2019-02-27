@@ -26,6 +26,8 @@
 
 using namespace std;
 
+// Add virtual void for the ::generate() functions ******** 
+
 
 /*
  * Function:	Expression::Expression (constructor)

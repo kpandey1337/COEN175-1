@@ -55,6 +55,7 @@ public:
     unsigned indirection() const;
     unsigned length() const;
     Parameters *parameters() const;
+    unsigned size() const;
 
     bool isReal() const;
     bool isInteger() const;

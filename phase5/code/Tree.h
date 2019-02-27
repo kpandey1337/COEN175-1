@@ -67,8 +67,11 @@ protected:
     Expression(const Type &type);
 
 public:
+    string _operand;
+
     const Type &type() const;
     bool lvalue() const;
+
 };
 
 
@@ -346,6 +349,7 @@ public:
     Block(Scope *decls, const Statements &stmts);
     Scope *declarations() const;
     virtual void write(ostream &ostr) const;
+    virtual void generate() const;
 };
 
 
@@ -382,6 +386,7 @@ class Function : public Node {
 public:
     Function(const Symbol *id, Block *body);
     virtual void write(ostream &ostr) const;
+    virtual void generate() const;
 };
 
 # endif /* TREE_H */

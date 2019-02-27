@@ -225,6 +225,28 @@ Parameters *Type::parameters() const
     return _parameters;
 }
 
+/* PEDRO */
+
+unsigned Type::size() const{
+
+    assert(_kind != FUNCTION && _kind != ERROR); //questionable assert
+
+    unsigned mult = isArray()? _length : 1;
+
+    if(_specifier == INT || _indirection > 0 ){
+        return mult * 4;
+    }
+    else if (_specifier == CHAR){
+        return mult * 1;
+    }
+    else if (_specifier == DOUBLE){
+
+    }
+    else {
+        return mult * 4;
+    }
+
+}
 
 /*
  * Function:	Type::isReal
