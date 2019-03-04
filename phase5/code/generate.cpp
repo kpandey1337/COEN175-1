@@ -29,7 +29,7 @@ void Function::generate(){
 // 1) Assign offsets
 
 	//Get number of parameters from function's Type
-	int numParameters = _id->type().parameters()->size();
+	unsigned numParameters = _id->type().parameters()->size();
 
 	//Allocate the first N variable's offsets as positive
 	//Allocate the rest of the variables to negative offsets
@@ -74,7 +74,7 @@ void Function::generate(){
 }
 
 void Block::generate(){
-	for(int i = 0; i < _stmts.size(); i++){
+	for(unsigned i = 0; i < _stmts.size(); i++){
 		_stmts[i]->generate();
 	}
 }
