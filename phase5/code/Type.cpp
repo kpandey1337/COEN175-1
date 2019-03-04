@@ -246,6 +246,8 @@ unsigned Type::size() const{
         return mult * 4;
     }
 
+    return mult;
+
 }
 
 /*

@@ -66,8 +66,6 @@ public:
 
     Type promote() const;
     Type deref() const;
-
-    unsigned size() const { return 1; /* fill this in later */ }
 };
 
 std::ostream &operator <<(std::ostream &ostr, const Type &type);

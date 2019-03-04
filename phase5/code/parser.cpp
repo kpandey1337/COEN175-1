@@ -11,6 +11,7 @@
 # include "checker.h"
 # include "tokens.h"
 # include "lexer.h"
+# include "generate.h"
 
 using namespace std;
 
@@ -909,7 +910,8 @@ static void globalOrFunction()
 	    function = new Function(symbol, new Block(decls, stmts));
 
 	    if (numerrors == 0) {
-		function->write(cout);
+		//function->write(cout);
+	    function->generate();
 		cout << endl;
 	    }
 
@@ -940,6 +942,11 @@ int main()
     while (lookahead != DONE)
 	globalOrFunction();
 
-    closeScope();
+    Scope* globalScope = closeScope();
+
+    generateGlobals(globalScope);
+
+
+
     exit(EXIT_SUCCESS);
 }

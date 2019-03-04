@@ -2,22 +2,29 @@
 #include "Scope.h"
 #include "checker.h"
 #include "Type.h"
-
-extern Scope* toplevel;
+#include "generate.h"
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
-void generateGlobals(){
-	Symbol* symbols = toplevel->symbols();
+static ostream& operator <<(ostream& strm, Expression* expr){
+	return strm << expr->_operand;
+}
+
+void generateGlobals(Scope* toplevel){
+	Symbols symbols = toplevel->symbols();
+
+	cout << "#globals" << endl;
 
 	for(unsigned i = 0; i < symbols.size(); i++){
 		if( !(symbols[i]->type().isFunction() || symbols[i]->type().isError()) ){
-			cout << ".comm" << symbols[i]->name() << ", " << symbols[i]->type().size() << endl;
+			cout << ".comm\t" << symbols[i]->name() << ",\t" << symbols[i]->type().size() << endl;
 		}
 	}
 }
 
-void Function::generate() const{
+void Function::generate(){
 
 // 1) Assign offsets
 
@@ -26,7 +33,7 @@ void Function::generate() const{
 
 	//Allocate the first N variable's offsets as positive
 	//Allocate the rest of the variables to negative offsets
-	Symbols* symbols = _body->declarations()->symbols();
+	Symbols symbols = _body->declarations()->symbols();
 	unsigned i;
 	int arguments = 8;
 	int locals = 0;
@@ -45,21 +52,76 @@ void Function::generate() const{
 // 2) Prologue/Epilogue
 
 	//Prologue
-	cout << "pushl %ebp" << endl;
-	cout << "movl %esp, %ebp" << endl;
-	cout << "addl " << locals << ", %esp" << endl;
+	//Label function_label;
+	cout << "." << _id->name() << ": " << endl;
+	cout << "#prologue" << endl;
+	
 
+	cout << "\tpushl %ebp" << endl;
+	cout << "\tmovl %esp, %ebp" << endl;
+	cout << "\tsubl " << -locals << ", %esp" << endl;
+
+
+	cout << "#begin function body" << endl;
 	_body->generate(); //Block::generate()
-
+	cout << "#end function body" << endl;
+	
 	//Epilogue
-	cout << "movl %ebp, %esp" << endl;
-	cout << "popl %ebp" << endl;
-	cout << "ret" << endl;
+	cout << "#epilogue" << endl;
+	cout << "\tmovl\t%ebp,\t%esp" << endl;
+	cout << "\tpopl\t%ebp" << endl;
+	cout << "\tret" << endl;
 }
 
-void Block::generate() const{
+void Block::generate(){
+	for(int i = 0; i < _stmts.size(); i++){
+		_stmts[i]->generate();
+	}
+}
 
+void Assignment::generate(){
+	_left->generate();
+	_right->generate();
 
+	cout << "\tmovl\t" << _right << ",\t" << _left << endl;
 
 }
+
+void Call::generate(){
+
+	int i;
+	for(i = _args.size()-1; i >= 0; i--){
+		_args[i]->generate();
+	}
+
+	cout << "\tcall\t" << _id->name() << endl;
+	//CALL 
+	cout << "\taddl,\t" << _args.size() * 4 << ",\t" << "%esp" << endl;
+
+	//Push arguments onto stack
+	//Push return address onto stack
+	//CALL .
+}
+
+void Integer::generate(){
+	stringstream ss;
+
+	ss << "$" << _value;
+
+	_operand = ss.str();
+}
+
+void Identifier::generate(){
+	stringstream ss;
+
+	if(_symbol->_offset == 0){ //Then global variable
+		ss << _symbol->name();
+	}
+	else{
+		ss << _symbol->_offset << "(%ebp)";
+	}
+
+	_operand = ss.str();
+}
+
 
