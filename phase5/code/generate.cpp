@@ -100,7 +100,7 @@ void Call::generate(){
 
 	cout << "\tcall\t" << _id->name() << endl;
 	//CALL 
-	cout << "\taddl,\t" << _args.size() * 4 << ",\t" << "%esp" << endl;
+	cout << "\taddl\t" << _args.size() * 4 << ",\t" << "%esp" << endl;
 
 	//Push arguments onto stack
 	//Push return address onto stack
