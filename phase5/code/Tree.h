@@ -349,7 +349,7 @@ public:
     Block(Scope *decls, const Statements &stmts);
     Scope *declarations() const;
     virtual void write(ostream &ostr) const;
-    virtual void generate() const;
+    virtual void generate();
 };
 
 
