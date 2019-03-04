@@ -21,7 +21,11 @@ void generateGlobals(Scope* toplevel){
 		if( !(symbols[i]->type().isFunction() || symbols[i]->type().isError()) ){
 			cout << ".comm\t" << symbols[i]->name() << ",\t" << symbols[i]->type().size() << endl;
 		}
+		else if (symbols[i]->type().isFunction()){
+			cout << ".globl\t" << symbols[i]->name() << endl;
+		}
 	}
+
 }
 
 void Function::generate(){
