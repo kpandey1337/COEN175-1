@@ -98,6 +98,10 @@ void Call::generate(){
 		_args[i]->generate();
 	}
 
+	for(i = _args.size()-1; i >= 0; i--){
+		cout << "pushl\t" << _args[i] << endl;
+	}
+
 	cout << "\tcall\t" << _id->name() << endl;
 	//CALL 
 	cout << "\taddl\t$" << _args.size() * 4 << ",\t" << "%esp" << endl;
