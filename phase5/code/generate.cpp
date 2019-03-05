@@ -57,7 +57,7 @@ void Function::generate(){
 
 	//Prologue
 	//Label function_label;
-	cout << "." << _id->name() << ": " << endl;
+	cout << _id->name() << ": " << endl;
 	cout << "#prologue" << endl;
 	
 
