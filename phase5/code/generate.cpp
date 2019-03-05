@@ -61,9 +61,9 @@ void Function::generate(){
 	cout << "#prologue" << endl;
 	
 
-	cout << "\tpushl %ebp" << endl;
-	cout << "\tmovl %esp, %ebp" << endl;
-	cout << "\tsubl " << -locals << ", %esp" << endl;
+	cout << "\tpushl\t%ebp" << endl;
+	cout << "\tmovl\t%esp, %ebp" << endl;
+	cout << "\tsubl\t$" << -locals << ", %esp" << endl;
 
 
 	cout << "#begin function body" << endl;
