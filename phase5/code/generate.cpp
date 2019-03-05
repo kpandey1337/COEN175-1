@@ -42,7 +42,7 @@ void Function::generate(){
 	int arguments = 8;
 	int locals = 0;
 
-	for(i = 0; i < numParameters; i++){
+	for(i = 0; i < symbols.size(); i++){
 		if(i < numParameters){
 			symbols[i]->_offset = arguments;
 			arguments += symbols[i]->type().size();

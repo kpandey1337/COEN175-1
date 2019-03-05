@@ -37,7 +37,7 @@ using namespace std;
  */
 
 Expression::Expression(const Type &type)
-    : _type(type), _lvalue(false), _operand(0)
+    : _type(type), _lvalue(false), _operand("")
 {
 }
 
