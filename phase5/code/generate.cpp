@@ -99,7 +99,7 @@ void Call::generate(){
 	}
 
 	for(i = _args.size()-1; i >= 0; i--){
-		cout << "pushl\t" << _args[i] << endl;
+		cout << "\tpushl\t" << _args[i] << endl;
 	}
 
 	cout << "\tcall\t" << _id->name() << endl;
