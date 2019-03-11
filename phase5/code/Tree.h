@@ -67,8 +67,11 @@ protected:
     Expression(const Type &type);
 
 public:
+    string _operand;
+
     const Type &type() const;
     bool lvalue() const;
+
 };
 
 
@@ -111,6 +114,7 @@ public:
     Identifier(const Symbol *symbol);
     const Symbol *symbol() const;
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -124,6 +128,7 @@ public:
     Integer(const string &value);
     const string &value() const;
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -149,6 +154,7 @@ class Call : public Expression {
 public:
     Call(const Symbol *id, const Expressions &args, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -322,6 +328,7 @@ class Assignment : public Statement {
 public:
     Assignment(Expression *left, Expression *right);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -346,6 +353,7 @@ public:
     Block(Scope *decls, const Statements &stmts);
     Scope *declarations() const;
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -382,6 +390,7 @@ class Function : public Node {
 public:
     Function(const Symbol *id, Block *body);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 # endif /* TREE_H */

@@ -255,9 +255,9 @@ Symbol *checkIdentifier(const string &name)
     Symbol *symbol = toplevel->lookup(name);
 
     if (symbol == nullptr) {
-	report(undeclared, name);
-	symbol = new Symbol(name, error);
-	toplevel->insert(symbol);
+		report(undeclared, name);
+		symbol = new Symbol(name, error);
+		toplevel->insert(symbol);
     }
 
     return symbol;

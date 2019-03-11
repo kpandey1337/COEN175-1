@@ -55,6 +55,7 @@ public:
     unsigned indirection() const;
     unsigned length() const;
     Parameters *parameters() const;
+    unsigned size() const;
 
     bool isReal() const;
     bool isInteger() const;
@@ -65,8 +66,6 @@ public:
 
     Type promote() const;
     Type deref() const;
-
-    unsigned size() const { return 1; /* fill this in later */ }
 };
 
 std::ostream &operator <<(std::ostream &ostr, const Type &type);

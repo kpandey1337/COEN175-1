@@ -26,6 +26,8 @@
 
 using namespace std;
 
+// Add virtual void for the ::generate() functions ******** 
+
 
 /*
  * Function:	Expression::Expression (constructor)
@@ -35,7 +37,7 @@ using namespace std;
  */
 
 Expression::Expression(const Type &type)
-    : _type(type), _lvalue(false)
+    : _type(type), _lvalue(false), _operand("")
 {
 }
 
