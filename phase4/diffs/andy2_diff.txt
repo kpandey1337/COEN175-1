@@ -1,0 +1,247 @@
+1,56c1,63
+< line 16: invalid operands to binary '&&'
+< line 18: invalid operands to binary '&&'
+< line 20: invalid operands to binary '&&'
+< line 22: invalid operands to binary '||'
+< line 24: invalid operands to binary '||'
+< line 28: invalid operands to binary '=='
+< line 30: invalid operands to binary '=='
+< line 32: invalid operands to binary '!='
+< line 34: invalid operands to binary '=='
+< line 36: invalid operands to binary '=='
+< line 40: invalid operands to binary '<='
+< line 42: invalid operands to binary '>='
+< line 44: invalid operands to binary '<'
+< line 46: invalid operands to binary '>'
+< line 48: invalid operands to binary '>'
+< line 54: invalid operands to binary '+'
+< line 56: invalid operands to binary '-'
+< line 60: invalid operands to binary '+'
+< line 62: invalid operands to binary '+'
+< line 64: invalid operands to binary '+'
+< line 66: invalid operands to binary '-'
+< line 74: invalid operands to binary '*'
+< line 76: invalid operands to binary '*'
+< line 78: invalid operands to binary '*'
+< line 80: invalid operands to binary '*'
+< line 82: invalid operands to binary '/'
+< line 84: invalid operands to binary '/'
+< line 86: invalid operands to binary '/'
+< line 88: invalid operands to binary '/'
+< line 90: invalid operands to binary '%'
+< line 92: invalid operands to binary '%'
+< line 94: invalid operands to binary '%'
+< line 96: invalid operands to binary '%'
+< line 100: invalid operand to unary '*'
+< line 104: invalid operand to unary '*'
+< line 107: invalid operand to unary '*'
+< line 113: invalid operand to unary '*'
+< line 144: invalid operand to unary '*'
+< line 163: invalid operand to unary '!'
+< line 164: invalid operand to unary '!'
+< line 165: invalid operand to unary '!'
+< line 168: invalid operand to unary '-'
+< line 169: invalid operand to unary '-'
+< line 170: invalid operand to unary '-'
+< line 171: invalid operand to unary '-'
+< line 173: invalid operand to unary '-'
+< line 174: invalid operand to unary '-'
+< line 175: invalid operand to unary '-'
+< line 176: invalid operand to unary '-'
+< line 178: invalid operand to unary '-'
+< line 179: invalid operand to unary '-'
+< line 180: invalid operand to unary '-'
+< line 181: invalid operand to unary '-'
+< line 182: invalid operand to unary '-'
+< line 183: invalid operand to unary '-'
+< line 184: invalid operand to unary '-'
+---
+> line 16: invalid operands to binary &&
+> line 18: invalid operands to binary &&
+> line 20: invalid operands to binary &&
+> line 22: invalid operands to binary ||
+> line 24: invalid operands to binary ||
+> line 28: invalid operands to binary ==
+> line 30: invalid operands to binary ==
+> line 32: invalid operands to binary !=
+> line 34: invalid operands to binary ==
+> line 36: invalid operands to binary ==
+> line 40: invalid operands to binary <=
+> line 42: invalid operands to binary >=
+> line 44: invalid operands to binary <
+> line 46: invalid operands to binary >
+> line 48: invalid operands to binary >
+> line 54: invalid operands to binary +
+> line 56: invalid operands to binary -
+> line 60: invalid operands to binary +
+> line 62: invalid operands to binary +
+> line 64: invalid operands to binary +
+> line 66: invalid operands to binary -
+> line 68: invalid operands to binary -
+> line 74: invalid operands to binary *
+> line 76: invalid operands to binary *
+> line 78: invalid operands to binary *
+> line 80: invalid operands to binary *
+> line 82: invalid operands to binary /
+> line 84: invalid operands to binary /
+> line 86: invalid operands to binary /
+> line 88: invalid operands to binary /
+> line 90: invalid operands to binary %
+> line 92: invalid operands to binary %
+> line 94: invalid operands to binary %
+> line 96: invalid operands to binary %
+> line 100: invalid operand to unary *
+> line 104: invalid operand to unary *
+> line 107: invalid operand to unary *
+> line 113: invalid operand to unary *
+> line 123: lvalue required in expression
+> line 125: lvalue required in expression
+> line 130: lvalue required in expression
+> line 132: lvalue required in expression
+> line 137: lvalue required in expression
+> line 139: lvalue required in expression
+> line 144: invalid operand to unary *
+> line 163: invalid operand to unary !
+> line 164: invalid operand to unary !
+> line 165: invalid operand to unary !
+> line 168: invalid operand to unary -
+> line 169: invalid operand to unary -
+> line 170: invalid operand to unary -
+> line 171: invalid operand to unary -
+> line 173: invalid operand to unary -
+> line 174: invalid operand to unary -
+> line 175: invalid operand to unary -
+> line 176: invalid operand to unary -
+> line 178: invalid operand to unary -
+> line 179: invalid operand to unary -
+> line 180: invalid operand to unary -
+> line 181: invalid operand to unary -
+> line 182: invalid operand to unary -
+> line 183: invalid operand to unary -
+> line 184: invalid operand to unary -
+80a88
+> line 263: invalid operand in cast expression
+81a90
+> line 279: invalid operand in cast expression
+82a92
+> line 295: invalid operand in cast expression
+83a94
+> line 311: invalid operand in cast expression
+84a96
+> line 327: invalid operand in cast expression
+85a98
+> line 343: invalid operand in cast expression
+87,94c100,107
+< line 355: invalid operands to binary '[]'
+< line 360: invalid operands to binary '[]'
+< line 365: invalid operands to binary '[]'
+< line 371: invalid operands to binary '[]'
+< line 373: invalid operands to binary '[]'
+< line 375: invalid operands to binary '[]'
+< line 376: invalid operands to binary '[]'
+< line 385: invalid operands to binary '[]'
+---
+> line 355: invalid operands to binary []
+> line 360: invalid operands to binary []
+> line 365: invalid operands to binary []
+> line 371: invalid operands to binary []
+> line 373: invalid operands to binary []
+> line 375: invalid operands to binary []
+> line 376: invalid operands to binary []
+> line 385: invalid operands to binary []
+99,102c112,115
+< line 398: called object is not a function
+< line 399: called object is not a function
+< line 400: called object is not a function
+< line 405: called object is not a function
+---
+> line 398: invalid arguments to called function
+> line 399: invalid arguments to called function
+> line 400: invalid arguments to called function
+> line 405: invalid arguments to called function
+104,108c117,121
+< line 407: called object is not a function
+< line 408: called object is not a function
+< line 410: called object is not a function
+< line 411: called object is not a function
+< line 412: called object is not a function
+---
+> line 407: invalid arguments to called function
+> line 408: invalid arguments to called function
+> line 410: invalid arguments to called function
+> line 411: invalid arguments to called function
+> line 412: invalid arguments to called function
+122,157c135,170
+< line 447: invalid operands to binary '='
+< line 448: invalid operands to binary '='
+< line 449: invalid operands to binary '='
+< line 450: invalid operands to binary '='
+< line 452: invalid operands to binary '='
+< line 453: invalid operands to binary '='
+< line 454: invalid operands to binary '='
+< line 455: invalid operands to binary '='
+< line 457: invalid operands to binary '='
+< line 458: invalid operands to binary '='
+< line 459: invalid operands to binary '='
+< line 460: invalid operands to binary '='
+< line 463: invalid operands to binary '='
+< line 464: invalid operands to binary '='
+< line 465: invalid operands to binary '='
+< line 466: invalid operands to binary '='
+< line 468: invalid operands to binary '='
+< line 469: invalid operands to binary '='
+< line 470: invalid operands to binary '='
+< line 471: invalid operands to binary '='
+< line 473: invalid operands to binary '='
+< line 474: invalid operands to binary '='
+< line 475: invalid operands to binary '='
+< line 476: invalid operands to binary '='
+< line 478: invalid operands to binary '='
+< line 479: invalid operands to binary '='
+< line 480: invalid operands to binary '='
+< line 481: invalid operands to binary '='
+< line 483: invalid operands to binary '='
+< line 484: invalid operands to binary '='
+< line 485: invalid operands to binary '='
+< line 486: invalid operands to binary '='
+< line 488: invalid operands to binary '='
+< line 489: invalid operands to binary '='
+< line 490: invalid operands to binary '='
+< line 491: invalid operands to binary '='
+---
+> line 447: invalid operands to binary =
+> line 448: lvalue required in expression
+> line 449: lvalue required in expression
+> line 450: invalid operands to binary =
+> line 452: invalid operands to binary =
+> line 453: lvalue required in expression
+> line 454: lvalue required in expression
+> line 455: invalid operands to binary =
+> line 457: invalid operands to binary =
+> line 458: lvalue required in expression
+> line 459: lvalue required in expression
+> line 460: invalid operands to binary =
+> line 463: invalid operands to binary =
+> line 464: lvalue required in expression
+> line 465: lvalue required in expression
+> line 466: invalid operands to binary =
+> line 468: invalid operands to binary =
+> line 469: lvalue required in expression
+> line 470: lvalue required in expression
+> line 471: invalid operands to binary =
+> line 473: invalid operands to binary =
+> line 474: lvalue required in expression
+> line 475: lvalue required in expression
+> line 476: invalid operands to binary =
+> line 478: invalid operands to binary =
+> line 479: lvalue required in expression
+> line 480: lvalue required in expression
+> line 481: invalid operands to binary =
+> line 483: invalid operands to binary =
+> line 484: lvalue required in expression
+> line 485: lvalue required in expression
+> line 486: invalid operands to binary =
+> line 488: invalid operands to binary =
+> line 489: lvalue required in expression
+> line 490: lvalue required in expression
+> line 491: invalid operands to binary =

@@ -1,0 +1,14 @@
+1,4c1,4
+< line 26: invalid operands to binary '-'
+< line 28: invalid operands to binary '+'
+< line 30: invalid operands to binary '-'
+< line 31: invalid operands to binary '-'
+---
+> line 26: invalid operands to binary -
+> line 28: invalid operands to binary +
+> line 30: invalid operands to binary -
+> line 31: invalid operands to binary -
+6c6
+< line 39: invalid operand to unary '-'
+---
+> line 39: invalid operand to unary -

@@ -1,0 +1,3 @@
+when in the document, it says of type int then this
+	Note that type int is not specifier == int, its specifier == int and isNumeric()
+

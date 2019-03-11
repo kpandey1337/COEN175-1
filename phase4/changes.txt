@@ -1,0 +1,2 @@
+added indirection == 0 to isNumeric()
+

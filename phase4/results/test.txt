@@ -1,0 +1,73 @@
+line 15: invalid operands to binary '||'
+line 18: invalid operands to binary '&&'
+line 24: invalid operands to binary '=='
+line 25: invalid operands to binary '=='
+line 26: invalid operands to binary '=='
+line 31: invalid operands to binary '!='
+line 32: invalid operands to binary '!='
+line 33: invalid operands to binary '!='
+line 39: invalid operands to binary '<='
+line 40: invalid operands to binary '<='
+line 41: invalid operands to binary '<='
+line 46: invalid operands to binary '>='
+line 47: invalid operands to binary '>='
+line 48: invalid operands to binary '>='
+line 53: invalid operands to binary '<'
+line 54: invalid operands to binary '<'
+line 55: invalid operands to binary '<'
+line 60: invalid operands to binary '>'
+line 61: invalid operands to binary '>'
+line 62: invalid operands to binary '>'
+line 72: invalid operands to binary '+'
+line 73: invalid operands to binary '+'
+line 82: invalid operands to binary '-'
+line 83: invalid operands to binary '-'
+line 85: invalid operands to binary '-'
+line 93: invalid operands to binary '*'
+line 94: invalid operands to binary '*'
+line 95: invalid operands to binary '*'
+line 102: invalid operands to binary '/'
+line 103: invalid operands to binary '/'
+line 104: invalid operands to binary '/'
+line 108: invalid operands to binary '%'
+line 109: invalid operands to binary '%'
+line 110: invalid operands to binary '%'
+line 111: invalid operands to binary '%'
+line 118: invalid operand to unary '*'
+line 119: invalid operand to unary '*'
+line 120: invalid operand to unary '*'
+line 132: lvalue required in expression
+line 137: invalid operand to unary '!'
+line 142: invalid operand to unary '-'
+line 143: invalid operand to unary '-'
+line 144: invalid operand to unary '-'
+line 160: invalid operand in cast expression
+line 161: invalid operand in cast expression
+line 162: invalid operand in cast expression
+line 163: invalid operand in cast expression
+line 170: invalid operands to binary '[]'
+line 171: invalid operands to binary '[]'
+line 172: invalid operands to binary '[]'
+line 173: invalid operands to binary '[]'
+line 174: invalid operands to binary '[]'
+line 181: called object is not a function
+line 182: called object is not a function
+line 183: called object is not a function
+line 184: invalid arguments to called function
+line 189: invalid type for test expression
+line 190: invalid type for test expression
+line 191: invalid operands to binary '+'
+line 193: invalid operands to binary '+'
+line 204: invalid operands to binary '='
+line 205: invalid operands to binary '='
+line 206: invalid operands to binary '='
+line 207: invalid operands to binary '='
+line 208: invalid operands to binary '='
+line 210: invalid operands to binary '='
+line 211: invalid operands to binary '='
+line 213: invalid operands to binary '='
+line 214: invalid operands to binary '='
+line 215: invalid operands to binary '+'
+line 229: invalid operands to binary '+'
+line 231: invalid return type
+line 233: invalid return type

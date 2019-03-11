@@ -1,0 +1,8 @@
+promotion from array -> pointer?
+when promotions happen?
+
+in additiveExpression
+	Where to promote?
+	Is integer == isNumeric()?
+
+Do notefromandy apply to Double as well?

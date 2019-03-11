@@ -1,0 +1,20 @@
+1,3c1,3
+< line 7: invalid operands to binary '='
+< line 8: invalid operands to binary '='
+< line 18: invalid operands to binary '[]'
+---
+> line 7: invalid operands to binary =
+> line 8: lvalue required in expression
+> line 18: invalid operands to binary []
+5c5
+< line 25: invalid operand to unary '*'
+---
+> line 25: invalid operand to unary *
+7c7
+< line 30: invalid operands to binary '<'
+---
+> line 30: invalid operands to binary <
+9c9
+< line 35: called object is not a function
+---
+> line 35: invalid arguments to called function

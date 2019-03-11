@@ -1,0 +1,5 @@
+1c1
+< line 8: invalid operands to binary '='
+---
+> line 8: lvalue required in expression
+\ No newline at end of file
