@@ -10,6 +10,6 @@ unsigned Label::number() const{
 	return _number;
 }
 
-ostream &operator <<(ostream &ostr, const Label &label) {
+std::ostream &operator <<(std::ostream &ostr, const Label &label) {
 	return ostr << ".L" << label.number();
 }

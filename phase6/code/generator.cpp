@@ -448,8 +448,6 @@ void NotEqual::generate(){
 
 
 
-/*
-
 void Expression::test(const Label &label, bool ifTrue){
 	//generates code for expression.
 	//compares result against zero.
@@ -466,7 +464,7 @@ void Expression::test(const Label &label, bool ifTrue){
 	assign(this, nullptr);
 }
 
-*/
+
 
 
 
