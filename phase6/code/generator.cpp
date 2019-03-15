@@ -29,6 +29,7 @@ using namespace std;
 
 # define CALLEE_SAVED 0
 
+int offset; //moved from Function::generate() to global
 
 /* The registers and their related functions */
 
@@ -64,7 +65,7 @@ static Register *xmm5 = new Register("%xmm5");
 static Register *xmm6 = new Register("%xmm6");
 static Register *xmm7 = new Register("%xmm7");
 
-Registers fp_registers = {xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7}
+Registers fp_registers = {xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7};
 
 /*
  * Function:	align (private)
@@ -252,7 +253,7 @@ void Block::generate()
 
 void Function::generate()
 {
-	int param_offset, offset;
+	int param_offset;
 
 
 	/* Generate our prologue. */
@@ -292,8 +293,8 @@ void Function::generate()
 	cout << "\tret" << endl << endl;
 
 	if (!SIMPLE_PROLOGUE) {
-	offset -= align(offset - param_offset);
-	cout << "\t.set\t" << _id->name() << ".size, " << -offset << endl;
+		offset -= align(offset - param_offset);
+		cout << "\t.set\t" << _id->name() << ".size, " << -offset << endl;
 	}
 
 	cout << "\t.globl\t" << global_prefix << _id->name() << endl << endl;
@@ -390,13 +391,13 @@ Register* getreg(){
 	}
 
 	load(nullptr, registers[0]);
-	return registers[0]
+	return registers[0];
 }
 
 Register* fp_getreg(){
 	for(unsigned i=0; i < fp_registers.size(); i++){
 		if(fp_registers[i]->_node == nullptr)
-			return fp_registers[i]
+			return fp_registers[i];
 	}
 
 	load(nullptr, fp_registers[0]);
@@ -410,12 +411,12 @@ void release(){
 }
 
 void assigntemp(Expression *expr){
-	//stringstream ss;
+	stringstream ss;
 
 	offset = offset - expr->type().size();
-	expr->_operand = offset + "(%ebp)";
+	ss << offset << "(%ebp)";
 
-	//he uses stringstream here instead
+	expr->_operand = ss.str();
 }
 
 void assign(Expression *expr, Register *reg){

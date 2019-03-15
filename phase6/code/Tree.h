@@ -212,6 +212,7 @@ class Multiply : public Binary {
 public:
     Multiply(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -221,6 +222,7 @@ class Divide : public Binary {
 public:
     Divide(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -230,6 +232,7 @@ class Remainder : public Binary {
 public:
     Remainder(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -239,6 +242,7 @@ class Add : public Binary {
 public:
     Add(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -248,6 +252,7 @@ class Subtract : public Binary {
 public:
     Subtract(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
