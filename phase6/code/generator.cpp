@@ -42,6 +42,13 @@ static Registers callee_saved = {};
 # endif
 
 
+/* CALLER DEFINED REGISTERS */
+
+static Register *eax = new Register("%eax", "%al");
+
+Registers registers = {eax};
+
+
 /*
  * Function:	align (private)
  *
@@ -297,6 +304,17 @@ void generateGlobals(Scope *scope)
 
 /* PEDRO */
 
+Register* getreg(){
+	for (unsigned i=0; i < registers.size(); i++){
+		if(registers[i]->_node == nullptr){
+			return registers[i];
+		}
+	}
+
+	load(nullptr, registers[0]);
+	return registers[0]
+}
+
 void assign(Expression *expr, Register *reg){
 	if(expr != nullptr){
 		if (expr->_register != nullptr)
@@ -304,7 +322,7 @@ void assign(Expression *expr, Register *reg){
 		
 		expr->_register = reg;
 	}
-	
+
 	if (reg != nullptr) {
 		if (reg->_node != nullptr)
 			reg->_node->_register = nullptr;
