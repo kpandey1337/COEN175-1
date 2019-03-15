@@ -16,6 +16,9 @@
 
 using namespace std;
 
+#define FP(expr) ((expr)->type().isReal())
+#define BYTE(expr) ((expr)->type().size() == 1)
+
 
 /* This needs to be set to zero if temporaries are placed on the stack. */
 
@@ -42,11 +45,24 @@ static Registers callee_saved = {};
 # endif
 
 
-/* CALLER DEFINED REGISTERS */
+/* CALLER SAVED REGISTERS */
 
 static Register *eax = new Register("%eax", "%al");
+static Register *ecx = new Register("%ecx", "%cl");
+static Register *edx = new Register("%edx", "%dl");
 
-Registers registers = {eax};
+Registers registers = {eax, ecx, edx};
+
+/* FP REGISTERS */
+
+static Register *xmm0 = new Register("%xmm0");
+static Register *xmm1 = new Register("%xmm1");
+static Register *xmm2 = new Register("%xmm2");
+static Register *xmm3 = new Register("%xmm3");
+static Register *xmm4 = new Register("%xmm4");
+static Register *xmm5 = new Register("%xmm5");
+static Register *xmm6 = new Register("%xmm6");
+static Register *xmm7 = new Register("%xmm7");
 
 
 /*
@@ -304,6 +320,10 @@ void generateGlobals(Scope *scope)
 
 /* PEDRO */
 
+static string suffix(Expression *expr){
+	return FP(expr) ? "sd\t" : (BYTE(expr) ? "b\t" : "l\t");
+}
+
 Register* getreg(){
 	for (unsigned i=0; i < registers.size(); i++){
 		if(registers[i]->_node == nullptr){
@@ -313,6 +333,22 @@ Register* getreg(){
 
 	load(nullptr, registers[0]);
 	return registers[0]
+}
+
+Register* fp_getreg(){
+	for(unsigned i=0; i < fp_registers.size(); i++){
+		if(fp_registers[i]->_node == nullptr)
+			return fp_registers[i]
+	}
+
+	load(nullptr, fp_registers[0]);
+	return fp_registers[0];
+}
+
+void release(){
+	for(unsigned i = 0; i < registers.size(); i++){
+		assign(nullptr, registers[i]);
+	}
 }
 
 void assign(Expression *expr, Register *reg){
