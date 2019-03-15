@@ -240,7 +240,7 @@ unsigned Type::size() const{
         return mult * 1;
     }
     else if (_specifier == DOUBLE){
-
+        return mult * 8;
     }
     else {
         return mult * 4;
