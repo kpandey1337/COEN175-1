@@ -263,6 +263,7 @@ void Function::generate()
 	allocate(offset);
 
 	cout << global_prefix << _id->name() << ":" << endl;
+	cout << "\t\t\t\t#Begin: Prologue" << endl; 
 	cout << "\tpushl\t%ebp" << endl;
 
 	for (unsigned i = 0; i < callee_saved.size(); i ++)
@@ -283,7 +284,7 @@ void Function::generate()
 
 
 	/* Generate our epilogue. */
-
+	cout << "\t\t\t\t#Begin: Epilogue" << endl; 
 	cout << "\tmovl\t%ebp, %esp" << endl;
 
 	for (int i = callee_saved.size() - 1; i >= 0; i --)
@@ -324,6 +325,8 @@ void arithmetic(Expression* result, Expression* left, Expression* right, string 
 	left->generate();
 	right->generate();
 
+	cout << "\t\t\t\t#Begin: " << opcode << endl; 
+
 	if(left->_register == nullptr){
 		load(left, FP(left) ? fp_getreg() : getreg());
 	}
@@ -348,6 +351,8 @@ void Multiply::generate(){
 
 void int_divide(Expression* result, Expression* left, Expression* right, Register* reg){
 	//do I need to generate code for left/right here?
+	cout << "\t\t\t\t#Begin: int_divide" << endl; 
+
 	left->generate();
 	right->generate();
 
@@ -356,9 +361,9 @@ void int_divide(Expression* result, Expression* left, Expression* right, Registe
 	load(nullptr, edx); //spill the contents of edx if necessary
 
 	cout << "\tmovl\t%eax,\t%edx \t#sign extend %eax into %edx" << endl;
-	cout << "sarl\t$31,\t%edx" << endl;
+	cout << "\tsarl\t$31,\t%edx" << endl;
 
-	cout << "\tidivl\t" << right << "#%edx:%eax / "<< right << endl; 
+	cout << "\tidivl\t" << right << "\t\t#%edx:%eax / "<< right << endl; 
 
 	assign(nullptr, eax);
 	assign(nullptr, ecx);
