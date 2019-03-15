@@ -317,9 +317,66 @@ void generateGlobals(Scope *scope)
 		}
 }
 
+/* PEDRO GENERATE */
+
+void arithmetic(Expression* result, Expression* left, Expression* right, string opcode){
+	left->generate();
+	right->generate();
+
+	if(left->_register == nullptr){
+		load(left, FP(left) ? fp_getreg() : getreg());
+	}
+
+	cout << "\t" << opcode << suffix(left) << right << ", " << left << endl;
+
+	assign(right, nullptr);
+	assign(result, left->_register);
+}
+
+void Add::generate(){
+	arithmetic(this, _left, _right, "add");
+}
+
+void Subtract::generate(){
+	arithmetic(this, _left, _right, "sub");
+}
+
+void Multiply::generate(){
+	arithmetic(this, _left, _right, FP(_left) ? "mul" : "imul");
+}
+
+void int_divide(Expression* result, Expression* left, Expression* right, Register* reg){
+	//do I need to generate code for left/right here?
+	left->generate();
+	right->generate();
+
+	load(left, eax); //put left into eax and spill the contents of eax if necessary
+	load(right, ecx); //put right into ecx, spill
+	load(nullptr, edx); //spill the contents of edx if necessary
+
+	cout << "\tmovl\t%eax,\t%edx \t#sign extend %eax into %edx" << endl;
+	cout << "sarl\t$31,\t%edx" << endl;
+
+	cout << "\tidivl\t" << right << "#%edx:%eax / "<< right << endl; 
+
+	assign(nullptr, eax);
+	assign(nullptr, ecx);
+	assign(nullptr, edx);
+	assign(result, reg);
+}
+
+void Divide::generate(){
+	if (FP(_left)) arithmetic(this, _left, _right, "div");
+	else int_divide(this, _left, _right, eax);
+}
+
+void Remainder::generate(){
+	int_divide(this, _left, _right, edx);
+}
 
 
-/* PEDRO */
+
+/* PEDRO HELPERS */
 
 static string suffix(Expression *expr){
 	return FP(expr) ? "sd\t" : (BYTE(expr) ? "b\t" : "l\t");
@@ -352,6 +409,15 @@ void release(){
 	}
 }
 
+void assigntemp(Expression *expr){
+	//stringstream ss;
+
+	offset = offset - expr->type().size();
+	expr->_operand = offset + "(%ebp)";
+
+	//he uses stringstream here instead
+}
+
 void assign(Expression *expr, Register *reg){
 	if(expr != nullptr){
 		if (expr->_register != nullptr)
@@ -366,16 +432,6 @@ void assign(Expression *expr, Register *reg){
 		
 		reg->_node = expr;
 	}
-}
-
-void assigntemp(Expression *expr){
-	//stringstream ss;
-
-	offset = offset - expr->type().size();
-	expr->_operand = offset + "(%ebp)";
-
-	//he uses stringstream here instead
-
 }
 
 void load(Expression *expr, Register *reg){
