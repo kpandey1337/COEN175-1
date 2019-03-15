@@ -64,6 +64,7 @@ static Register *xmm5 = new Register("%xmm5");
 static Register *xmm6 = new Register("%xmm6");
 static Register *xmm7 = new Register("%xmm7");
 
+Registers fp_registers = {xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7}
 
 /*
  * Function:	align (private)
