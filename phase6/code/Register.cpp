@@ -58,7 +58,7 @@ const string &Register::byte() const
 ostream &operator <<(ostream &ostr, const Register *reg)
 {
     if (reg->_node != nullptr)
-	return ostr << reg->name(reg->_node->type().size());
+		return ostr << reg->name(reg->_node->type().size());
 
     return ostr << reg->name();
 }

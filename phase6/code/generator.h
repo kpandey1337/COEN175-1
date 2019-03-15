@@ -13,9 +13,15 @@
 
 void generateGlobals(Scope *scope);
 
+void arithmetic(Expression* result, Expression* left, Expression* right, std::string opcode);
+void int_divide(Expression* result, Expression* left, Expression* right, Register* reg);
+void compare(Expression* result, Expression* left, Expression* right, std::string opcode);
+
 static std::string suffix(Expression *expr);
+
 Register* getreg();
 Register* fp_getreg();
+
 void release();
 void assigntemp(Expression *expr);
 void assign(Expression *expr, Register *reg);

@@ -9,10 +9,13 @@
  */
 
 # include <sstream>
+# include <string>
 # include <iostream>
 # include "generator.h"
 # include "machine.h"
 # include "Tree.h"
+# include "label.h"
+
 
 using namespace std;
 
@@ -263,7 +266,7 @@ void Function::generate()
 	allocate(offset);
 
 	cout << global_prefix << _id->name() << ":" << endl;
-	cout << "\t\t\t\t#Begin: Prologue" << endl; 
+	cout << "#Begin: Prologue" << endl; 
 	cout << "\tpushl\t%ebp" << endl;
 
 	for (unsigned i = 0; i < callee_saved.size(); i ++)
@@ -284,7 +287,7 @@ void Function::generate()
 
 
 	/* Generate our epilogue. */
-	cout << "\t\t\t\t#Begin: Epilogue" << endl; 
+	cout << "#Begin: Epilogue" << endl; 
 	cout << "\tmovl\t%ebp, %esp" << endl;
 
 	for (int i = callee_saved.size() - 1; i >= 0; i --)
@@ -325,7 +328,7 @@ void arithmetic(Expression* result, Expression* left, Expression* right, string 
 	left->generate();
 	right->generate();
 
-	cout << "\t\t\t\t#Begin: " << opcode << endl; 
+	cout << "#Begin: " << opcode << endl; 
 
 	if(left->_register == nullptr){
 		load(left, FP(left) ? fp_getreg() : getreg());
@@ -351,7 +354,8 @@ void Multiply::generate(){
 
 void int_divide(Expression* result, Expression* left, Expression* right, Register* reg){
 	//do I need to generate code for left/right here?
-	cout << "\t\t\t\t#Begin: int_divide" << endl; 
+
+	cout << "#Begin: int_divide, register: " << reg << endl; 
 
 	left->generate();
 	right->generate();
@@ -379,6 +383,96 @@ void Divide::generate(){
 void Remainder::generate(){
 	int_divide(this, _left, _right, edx);
 }
+
+
+
+
+
+
+void compare(Expression* result, Expression* left, Expression* right, string opcode){
+	left->generate();
+	right->generate();
+
+	cout << "#Begin: " << opcode << endl; 
+
+	if(left->_register == nullptr){
+		load(left, getreg()); //handle FP here?
+	}
+
+	cout << "\tcmp" << suffix(left) << right << ",\t" << left << endl;
+	cout << "\t" << opcode << "\t" << left->_register->byte() << endl;
+	cout << "\tmovzbl\t" << left->_register->byte() << ",\t" << left->_register << endl;
+
+	assign(result, left->_register);
+}
+
+void LessThan::generate(){
+	compare(this, _left, _right, "setl");
+}
+
+void GreaterThan::generate(){
+	compare(this, _left, _right, "setg");
+}
+
+void LessOrEqual::generate(){
+	compare(this, _left, _right, "setle");
+}
+
+void GreaterOrEqual::generate(){
+	compare(this, _left, _right, "setge");
+}
+
+void Equal::generate(){
+	compare(this, _left, _right, "sete");
+}
+
+void NotEqual::generate(){
+	compare(this, _left, _right, "setne");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+void Expression::test(const Label &label, bool ifTrue){
+	//generates code for expression.
+	//compares result against zero.
+	//branches to the given label depending on the status of the ifTrue parameters
+
+	generate();
+
+	if(_register == nullptr)
+		load(this, getreg()); //Doesn't this need to handle FP??
+
+	cout << "\tcmpl\t$0, " << this << endl;
+	cout << (ifTrue ? "\tjne\t" : "\tje\t") << label << endl;
+
+	assign(this, nullptr);
+}
+
+*/
+
+
+
+
+
+
 
 
 
@@ -448,14 +542,14 @@ void load(Expression *expr, Register *reg){
 
 			assigntemp(reg->_node);
 			cout << "\tmov" << suffix(reg->_node);
-			cout << reg->name(size) << ", ";
-			cout << reg->_node->_operand << endl;
+			cout << reg->name(size) << ",\t";
+			cout << reg->_node->_operand << "\t#Spill!" << endl;
 		}
 
 		if(expr != nullptr){
 			unsigned size = expr->type().size();
 			cout << "\tmov" << suffix(expr) << expr;
-			cout << ", " << reg->name(size) << endl;
+			cout << ",\t" << reg->name(size) << endl;
 		}
 
 		assign(expr, reg);

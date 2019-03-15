@@ -31,6 +31,7 @@
 # include <ostream>
 # include "Scope.h"
 # include "Register.h"
+# include "label.h"
 
 typedef std::vector<class Statement *> Statements;
 typedef std::vector<class Expression *> Expressions;
@@ -75,6 +76,8 @@ public:
 
     const Type &type() const;
     bool lvalue() const;
+
+    //virtual void test(const Label &label, bool ifTrue);
 };
 
 
@@ -262,6 +265,7 @@ class LessThan : public Binary {
 public:
     LessThan(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -271,6 +275,7 @@ class GreaterThan : public Binary {
 public:
     GreaterThan(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -280,6 +285,7 @@ class LessOrEqual : public Binary {
 public:
     LessOrEqual(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -289,6 +295,7 @@ class GreaterOrEqual : public Binary {
 public:
     GreaterOrEqual(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -298,6 +305,7 @@ class Equal : public Binary {
 public:
     Equal(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -307,6 +315,7 @@ class NotEqual : public Binary {
 public:
     NotEqual(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
