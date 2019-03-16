@@ -195,6 +195,7 @@ void Call::generate()
 			_args[i]->generate();
 
 		cout << "\tpushl\t" << _args[i] << endl;
+		assign(_args[i], nullptr); //questionable
 
 	}
 
@@ -448,6 +449,8 @@ void LogicalOr::generate(){
 	_left->generate();
 	_right->generate();
 
+	cout << "#BEGIN: OR" <<endl;
+
 	if(_left->_register == nullptr){
 		load(_left, getreg()); //handle FP here?
 	}
@@ -518,27 +521,27 @@ void compare(Expression* result, Expression* left, Expression* right, string opc
 }
 
 void LessThan::generate(){
-	compare(this, _left, _right, "setl");
-}
-
-void GreaterThan::generate(){
-	compare(this, _left, _right, "setg");
-}
-
-void LessOrEqual::generate(){
-	compare(this, _left, _right, "setle");
-}
-
-void GreaterOrEqual::generate(){
 	compare(this, _left, _right, "setge");
 }
 
+void GreaterThan::generate(){
+	compare(this, _left, _right, "setle");
+}
+
+void LessOrEqual::generate(){
+	compare(this, _left, _right, "setg");
+}
+
+void GreaterOrEqual::generate(){
+	compare(this, _left, _right, "setl");
+}
+
 void Equal::generate(){
-	compare(this, _left, _right, "sete");
+	compare(this, _left, _right, "setne");
 }
 
 void NotEqual::generate(){
-	compare(this, _left, _right, "setne");
+	compare(this, _left, _right, "sete");
 }
 
 void Not::generate(){
@@ -620,6 +623,8 @@ void If::generate(){
 
 	_expr->generate();
 
+	cout << "#Begin: If" <<endl;
+
 	cout << "\tcmp\t$0,\t" << _expr <<endl;
 	cout << "\tje\t" << skip << endl;
 
@@ -654,6 +659,8 @@ void While::generate(){
 
 void Return::generate(){
 	_expr->generate();
+
+	cout << "#Begin: Return" << endl;
 
 	load(_expr, eax);
 
