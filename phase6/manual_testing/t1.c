@@ -84,4 +84,5 @@ int earlyReturn(void){
 
 int orTest(void){
 	if(a == 0 || b == 1) return 0;
+	a = 21;
 }

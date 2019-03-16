@@ -337,7 +337,9 @@ void Function::generate()
 	Label exit;
 	global_label = exit;
 
+	//assign local offset to global offset
 	_body->generate();
+	//reverse 
 
 	cout << exit << ":" << endl;
 
@@ -521,27 +523,27 @@ void compare(Expression* result, Expression* left, Expression* right, string opc
 }
 
 void LessThan::generate(){
-	compare(this, _left, _right, "setge");
-}
-
-void GreaterThan::generate(){
-	compare(this, _left, _right, "setle");
-}
-
-void LessOrEqual::generate(){
-	compare(this, _left, _right, "setg");
-}
-
-void GreaterOrEqual::generate(){
 	compare(this, _left, _right, "setl");
 }
 
+void GreaterThan::generate(){
+	compare(this, _left, _right, "setg");
+}
+
+void LessOrEqual::generate(){
+	compare(this, _left, _right, "setle");
+}
+
+void GreaterOrEqual::generate(){
+	compare(this, _left, _right, "setge");
+}
+
 void Equal::generate(){
-	compare(this, _left, _right, "setne");
+	compare(this, _left, _right, "sete");
 }
 
 void NotEqual::generate(){
-	compare(this, _left, _right, "sete");
+	compare(this, _left, _right, "setne");
 }
 
 void Not::generate(){
