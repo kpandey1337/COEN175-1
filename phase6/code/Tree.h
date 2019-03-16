@@ -78,6 +78,7 @@ public:
     bool lvalue() const;
 
     virtual void test(const Label &label, bool ifTrue);
+    virtual Expression* isDereference(){ return nullptr; }
 };
 
 
@@ -170,6 +171,7 @@ class Not : public Unary {
 public:
     Not(Expression *expr, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -179,6 +181,7 @@ class Negate : public Unary {
 public:
     Negate(Expression *expr, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -188,6 +191,9 @@ class Dereference : public Unary {
 public:
     Dereference(Expression *expr, const Type &type);
     virtual void write(ostream &ostr) const;
+
+    virtual Expression* isDereference(){ return _expr; }
+    virtual void generate();
 };
 
 
@@ -197,6 +203,7 @@ class Address : public Unary {
 public:
     Address(Expression *expr, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 

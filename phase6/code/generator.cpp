@@ -70,6 +70,7 @@ static Register *xmm7 = new Register("%xmm7");
 
 Registers fp_registers = {xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7};
 
+
 /*
  * Function:	align (private)
  *
@@ -442,6 +443,57 @@ void LogicalAnd::generate(){
 
 }
 
+void Not::generate(){
+	_expr->generate();
+
+	if(_expr->_register == nullptr){
+		load(_expr, getreg());
+	}
+
+	cout << "\tcmp" << suffix(_expr) << "$0,\t" << _expr << endl;
+	cout << "\tsete\t" << _expr->_register->byte() << endl;
+	cout << "\tmovzbl\t" << _expr->_register->byte() << ",\t" << _expr << endl;
+
+	assign(this, _expr->_register);
+}
+
+void Negate::generate(){
+	_expr->generate();
+
+	if(_expr->_register == nullptr){
+		load(_expr, getreg());
+	}
+
+	cout << "\tneg" << suffix(_expr) << _expr << endl;
+
+	assign(this, _expr->_register);
+}
+
+void Address::generate(){
+	_expr->generate();
+	Expression* child = _expr->isDereference();
+
+	if(child == nullptr){
+		if(_expr->_register == nullptr){
+			load(_expr, getreg()); //handle FP here?
+		}
+
+		cout << "\tlea" << suffix(_expr) << _expr << ",\t" << _expr << endl;
+	}
+	else{
+		assign(this, _expr->_register); //since p == &*p, do nothing
+	}
+}
+
+void Dereference::generate(){
+	if(_expr->lvalue() == false){
+		if(_expr->_register == nullptr){
+			load(_expr, getreg()); //handle FP here?
+		}
+
+		cout << "\tmov" << suffix(_expr) << "(" << _expr << "),\t" << _expr << endl;
+	}
+}
 
 
 
