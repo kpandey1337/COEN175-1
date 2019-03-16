@@ -458,7 +458,7 @@ void LogicalOr::generate(){
 	}
 
 	cout << "\tcmpl\t$0,\t" << _left << endl;
-	cout << "\tje\t" << l1 << endl;
+	cout << "\tjne\t" << l1 << endl;
 
 	assign(_left, nullptr);
 
@@ -467,7 +467,9 @@ void LogicalOr::generate(){
 	}
 
 	cout << "\tcmpl\t$0,\t" << _right << endl;
-	cout << "\tje\t" << l2 << endl;
+	cout << "\tjne\t" << l2 << endl;
+	cout << "\tmovl\t$0,\t" << _right << endl;
+	cout << "\tjmp\t" << l2 << endl;
 
 	cout << l1 << ":" << endl;
 	cout << "\tmovl\t$1,\t" << _right << endl;
