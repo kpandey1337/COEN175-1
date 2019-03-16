@@ -282,7 +282,7 @@ void Function::generate()
 
 
 	/* Generate the body of this function. */
-
+	cout << "#Begin: Function Body" << endl; 
 	_body->generate();
 
 
@@ -384,6 +384,64 @@ void Remainder::generate(){
 	int_divide(this, _left, _right, edx);
 }
 
+void LogicalOr::generate(){
+	Label l1, l2;
+
+	_left->generate();
+	_right->generate();
+
+	if(_left->_register == nullptr){
+		load(_left, getreg()); //handle FP here?
+	}
+
+	cout << "\tcmpl\t$0,\t" << _left << endl;
+	cout << "\tjne\t" << l1 << endl;
+
+	assign(_left, nullptr);
+
+	if(_right->_register == nullptr){
+		load(_right, getreg());
+	}
+
+	cout << "\tcmpl\t$0,\t" << _right << endl;
+	cout << "\tjne\t" << l2 << endl;
+
+	cout << l1 << ":" << endl;
+	cout << "\tmovl\t$1,\t" << _right << endl;
+	cout << l2 << ":" << endl;
+
+	assign(this, _right->_register);
+}
+
+void LogicalAnd::generate(){
+	Label l1, l2;
+
+	_left->generate();
+	_right->generate();
+
+	if(_left->_register == nullptr){
+		load(_left, getreg()); //handle FP here?
+	}
+
+	cout << "\tcmpl\t$0,\t" << _left << endl;
+	cout << "\tje\t" << l1 << endl;
+
+	assign(_left, nullptr);
+
+	if(_right->_register == nullptr){
+		load(_right, getreg());
+	}
+
+	cout << "\tcmpl\t$0,\t" << _right << endl;
+	cout << "\tje\t" << l1 << endl;
+
+	cout << "\tmovl\t$1,\t" << _right << endl;
+	cout << l1 << ":" << endl;
+
+	assign(this, _right->_register);
+
+}
+
 
 
 
@@ -448,6 +506,11 @@ void NotEqual::generate(){
 
 
 
+
+
+
+
+
 void Expression::test(const Label &label, bool ifTrue){
 	//generates code for expression.
 	//compares result against zero.
@@ -463,7 +526,6 @@ void Expression::test(const Label &label, bool ifTrue){
 
 	assign(this, nullptr);
 }
-
 
 
 

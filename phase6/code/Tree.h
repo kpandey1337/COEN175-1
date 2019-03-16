@@ -321,10 +321,11 @@ public:
 
 /* A logical-and expression: left && right */
 
-class LogicalAnd: public Binary {
+class LogicalAnd : public Binary {
 public:
     LogicalAnd(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -334,6 +335,7 @@ class LogicalOr : public Binary {
 public:
     LogicalOr(Expression *left, Expression *right, const Type &type);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
