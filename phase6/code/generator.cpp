@@ -222,6 +222,14 @@ void Assignment::generate()
 	_left->generate();
 	_right->generate();
 	cout << "\tmovl\t" << _right << ", " << _left << endl;
+/*
+	if(_left->isDereference() == nullptr){
+
+	}
+	else{ //is a deRef
+
+	}
+*/
 }
 
 
@@ -526,20 +534,16 @@ void Negate::generate(){
 }
 
 void Address::generate(){
-	_expr->generate();
-
-	Expression* child = _expr->isDereference();
-
-	if(_expr->_register == nullptr){
-		load(_expr, getreg()); //handle FP here?
-	}	
-
-	if(child == nullptr){
-		cout << "\tlea" << suffix(_expr) << _expr->_operand << ",\t" << _expr->_register << endl;
-		assign(this, _expr->_register);
+	if(_expr->isDereference() == nullptr){
+		_expr->generate();
+		assign(this, getreg());
+		cout << "\tlea" << suffix(_expr) << _expr << ",\t" << this << endl;
 	}
 	else{
-		assign(this, _expr->_register); //since p == &*p, do nothing
+		_expr->generate();
+		if(_expr->_register == nullptr)
+			load(_expr, getreg());
+		assign(this, _expr->_register);
 	}
 }
 
