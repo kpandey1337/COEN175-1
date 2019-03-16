@@ -338,7 +338,7 @@ void Function::generate()
 
 	_body->generate();
 
-	cout << exit << endl;
+	cout << exit << ":" << endl;
 
 	/* Generate our epilogue. */
 	cout << "#Begin: Epilogue" << endl; 
