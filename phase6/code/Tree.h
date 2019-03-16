@@ -214,6 +214,7 @@ class Cast : public Unary {
 public:
     Cast(const Type &type, Expression *expr);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 

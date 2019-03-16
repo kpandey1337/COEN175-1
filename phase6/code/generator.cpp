@@ -222,9 +222,7 @@ void Call::generate()
  */
 
 void Assignment::generate()
-{	
-
-
+{
 	Expression* child = _left->isDereference();
 
 	if(child == nullptr){
@@ -451,7 +449,7 @@ void LogicalOr::generate(){
 	_left->generate();
 	_right->generate();
 
-	cout << "#BEGIN: OR" <<endl;
+	cout << "#BEGIN: Or" <<endl;
 
 	if(_left->_register == nullptr){
 		load(_left, getreg()); //handle FP here?
@@ -483,6 +481,8 @@ void LogicalAnd::generate(){
 
 	_left->generate();
 	_right->generate();
+
+	cout << "#BEGIN: And" <<endl;
 
 	if(_left->_register == nullptr){
 		load(_left, getreg()); //handle FP here?
@@ -671,6 +671,63 @@ void Return::generate(){
 	cout << "\tjmp\t" << global_label << endl;
 }
 
+void Cast::generate(){
+
+	_expr->generate();
+
+	if(_expr->_register == nullptr)
+		load(_expr, FP(_expr) ? fp_getreg() : getreg());
+
+	const Type &src = _expr->type(), &dest = _type;
+
+	if(src.size() == 1){
+		if(dest.size() == 1){
+			assign(this, _expr->_register);
+		}
+		else if(dest.size() == 4){
+			assign(this, _expr->_register);
+			cout << "\tmovsbl\t" << _expr << ",\t" << this << endl;
+		}
+		else{
+			assign(this, _expr->_register);
+			cout << "\tmovsbl\t" << _expr << ",\t" << this << endl;
+
+			assign(this, fp_getreg());
+			cout << "\tcvtsi2sd\t" << _expr << ",\t" << this << endl;
+			assign(_expr, nullptr);
+
+		}
+	}
+	else if(src.size() == 4){
+		if(dest.size() == 1){
+			assign(this, _expr->_register);
+		}
+		else if(dest.size() == 4){
+			assign(this, _expr->_register);
+		}
+		else{
+			assign(this, fp_getreg());
+			cout << "\tcvtsi2sd\t" << _expr << ",\t" << this << endl;
+			assign(_expr, nullptr);
+		}
+	}
+	else{ //src == 8
+		if(dest.size() == 1){
+			assign(this, getreg());
+			cout << "\tcvtsd2si\t" << _expr << ",\t" << this << endl;
+			assign(_expr, nullptr);
+		}
+		else if(dest.size() == 4){
+			assign(this, getreg());
+			cout << "\tcvtsd2si\t" << _expr << ",\t" << this << endl;
+			assign(_expr, nullptr);
+		}
+		else{
+			assign(this, _expr->_register);
+		}
+
+	}
+}
 
 
 
