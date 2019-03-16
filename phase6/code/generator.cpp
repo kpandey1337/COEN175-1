@@ -70,6 +70,9 @@ static Register *xmm7 = new Register("%xmm7");
 
 Registers fp_registers = {xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7};
 
+/* DATA SECTION */
+
+static vector<string> data_section;
 
 /*
  * Function:	align (private)
@@ -321,6 +324,10 @@ void generateGlobals(Scope *scope)
 			cout << "\t.comm\t" << global_prefix << symbols[i]->name() << ", ";
 			cout << symbols[i]->type().size() << endl;
 		}
+
+	for(unsigned i = 0; i < data_section.size(); i++){
+		cout << data_section[i];
+	}
 }
 
 /* PEDRO GENERATE */
@@ -540,10 +547,14 @@ void NotEqual::generate(){
 	compare(this, _left, _right, "setne");
 }
 
+void String::generate(){
+	Label l;
+	stringstream ss;
 
-
-
-
+	//create a label for it and put it in the data_section vector for the future
+	ss << l << ":\t.asciz\t" << _value << endl;
+	data_section.push_back(ss.str());
+}
 
 
 

@@ -31,8 +31,15 @@ int negate(void){
 }
 */
 
+/*
 int pointers(void){
 	&*a;
 	*a;
 	&a;
+}
+*/
+
+int string(void){
+	"asofiasf!";
+	"1234567890";
 }

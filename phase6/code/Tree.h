@@ -109,6 +109,7 @@ public:
     String(const string &value);
     const string &value() const;
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
