@@ -1,4 +1,5 @@
-int *a, b;
+int a, b;
+int *c;
 
 /*
 int compare(void){
@@ -38,8 +39,21 @@ int pointers(void){
 	&a;
 }
 */
-
+/*
 int string(void){
 	"asofiasf!";
 	"1234567890";
+}
+*/
+/*
+int assign(void){
+	a = b + 2;
+	a = a + 3;
+}
+*/
+
+int deref_assign(void){
+	a = 69;
+	*c = a;
+	printf("%d", *c);
 }

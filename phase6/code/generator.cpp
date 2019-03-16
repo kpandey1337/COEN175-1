@@ -218,18 +218,36 @@ void Call::generate()
  */
 
 void Assignment::generate()
-{
-	_left->generate();
-	_right->generate();
-	cout << "\tmovl\t" << _right << ", " << _left << endl;
-/*
-	if(_left->isDereference() == nullptr){
+{	
+	Expression* child = _left->isDereference();
 
+	if(child == nullptr){
+		_left->generate();
+		_right->generate();
+
+		if(_right->_register == nullptr)
+			load(_right, getreg()); //handle FP here?
+
+		cout << "\tmovl\t" << _right << ",\t" << _left << endl;
+
+		assign(_right, nullptr);
 	}
 	else{ //is a deRef
+		_right->generate();
+		child->generate();
 
+		if(_right->_register == nullptr)
+			load(_right, getreg()); //handle FP here?
+		if(child->_register == nullptr)
+			load(child, getreg());
+
+		cout << "\tmovl\t" << _right << ",\t(" << child << ")" << endl;
+
+		assign(child, nullptr);
 	}
-*/
+
+
+
 }
 
 
