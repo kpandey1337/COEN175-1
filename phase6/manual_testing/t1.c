@@ -51,8 +51,34 @@ int assign(void){
 	a = a + 3;
 }
 */
-
+/*
 int deref_assign(void){
-	*c = 69;
+	int *c;
+	c = a;
 	printf("%d", *c);
 }
+*/
+
+/*
+int iff(void){
+	if(0){
+		a = 2;
+	}
+}
+*/
+
+
+int earlyReturn(void){
+	if(1){
+		return 1;
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+

@@ -74,6 +74,8 @@ Registers fp_registers = {xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7};
 
 static vector<string> data_section;
 
+Label global_label;
+
 /*
  * Function:	align (private)
  *
@@ -193,6 +195,7 @@ void Call::generate()
 			_args[i]->generate();
 
 		cout << "\tpushl\t" << _args[i] << endl;
+
 	}
 
 	/* Call the function and then adjust the stack pointer back. */
@@ -260,8 +263,11 @@ void Assignment::generate()
 
 void Block::generate()
 {
-	for (unsigned i = 0; i < _stmts.size(); i ++)
-	_stmts[i]->generate();
+	for (unsigned i = 0; i < _stmts.size(); i ++){
+		_stmts[i]->generate();
+		release(); 
+	}
+	
 }
 
 
@@ -321,8 +327,13 @@ void Function::generate()
 
 	/* Generate the body of this function. */
 	cout << "#Begin: Function Body" << endl; 
+
+	Label exit;
+	global_label = exit;
+
 	_body->generate();
 
+	cout << exit << endl;
 
 	/* Generate our epilogue. */
 	cout << "#Begin: Epilogue" << endl; 
@@ -593,8 +604,50 @@ void String::generate(){
 
 
 
+void If::generate(){
+	Label skip, exit;
 
+	_expr->generate();
 
+	cout << "\tcmp\t$0,\t" << _expr <<endl;
+	cout << "\tje\t" << skip << endl;
+
+	_thenStmt->generate();
+	release();
+
+	if(_elseStmt != nullptr)
+		cout << "\tjmp\t" << exit << endl;
+
+	cout << skip << ":" << endl;
+
+	if(_elseStmt != nullptr){
+		_elseStmt->generate();
+		release();
+		cout << exit << ":" << endl;
+	}
+}
+
+void While::generate(){
+	Label loop, exit;
+	
+	cout << loop << ":" << endl;
+	_expr->generate();
+	cout << "\tcmp\t$0,\t" << _expr <<endl;
+	cout << "\tje\t" << exit << endl;
+	_stmt->generate();
+	release();
+	cout << "\tjmp\t" << loop << endl;
+	cout << exit << ":" << endl;
+
+}
+
+void Return::generate(){
+	_expr->generate();
+
+	load(_expr, eax);
+
+	cout << "\tjmp\t" << global_label << endl;
+}
 
 
 

@@ -367,6 +367,7 @@ class Return : public Statement {
 public:
     Return(Expression *expr);
     virtual void write(ostream &ostr) const;
+    virtual void generate();
 };
 
 
@@ -395,6 +396,7 @@ public:
     While(Expression *expr, Statement *stmt);
     virtual void write(ostream &ostr) const;
     virtual void allocate(int &offset) const;
+    virtual void generate();
 };
 
 
@@ -408,6 +410,7 @@ public:
     If(Expression *expr, Statement *thenStmt, Statement *elseStmt);
     virtual void write(ostream &ostr) const;
     virtual void allocate(int &offset) const;
+    virtual void generate();
 };
 
 
