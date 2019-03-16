@@ -201,6 +201,9 @@ void Call::generate()
 
 	if (bytesPushed > 0)
 	cout << "\taddl\t$" << bytesPushed << ", %esp" << endl;
+
+	//get return address
+	assign(this, eax);
 }
 
 
