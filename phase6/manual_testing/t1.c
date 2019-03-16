@@ -53,7 +53,6 @@ int assign(void){
 */
 
 int deref_assign(void){
-	a = 69;
-	*c = a;
+	*c = 69;
 	printf("%d", *c);
 }
