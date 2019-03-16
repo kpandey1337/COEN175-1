@@ -158,7 +158,6 @@ void Call::generate()
 {
 	unsigned bytesPushed = 0;
 
-
 	/* Compute how many bytes will be pushed on the stack. */
 
 	for (int i = _args.size() - 1; i >= 0; i --) {
@@ -168,6 +167,13 @@ void Call::generate()
 			_args[i]->generate();
 	}
 
+	/* PEDRO: Spill all registers */
+	for(unsigned i = 0; i < registers.size(); i++){
+		load(nullptr, registers[i]);
+	}
+	for(unsigned i = 0; i < fp_registers.size(); i++){
+		load(nullptr, fp_registers[i]);
+	}
 
 	/* Adjust the stack keep it aligned.  We do this by simply subtracting
 	   the necessary number of bytes from the stack pointer.  Effectively,
@@ -188,7 +194,6 @@ void Call::generate()
 
 		cout << "\tpushl\t" << _args[i] << endl;
 	}
-
 
 	/* Call the function and then adjust the stack pointer back. */
 
@@ -274,7 +279,7 @@ void Function::generate()
 	cout << "\tpushl\t%ebp" << endl;
 
 	for (unsigned i = 0; i < callee_saved.size(); i ++)
-	cout << "\tpushl\t" << callee_saved[i] << endl;
+		cout << "\tpushl\t" << callee_saved[i] << endl;
 
 	cout << "\tmovl\t%esp, %ebp" << endl;
 
@@ -450,62 +455,6 @@ void LogicalAnd::generate(){
 
 }
 
-void Not::generate(){
-	_expr->generate();
-
-	if(_expr->_register == nullptr){
-		load(_expr, getreg());
-	}
-
-	cout << "\tcmp" << suffix(_expr) << "$0,\t" << _expr << endl;
-	cout << "\tsete\t" << _expr->_register->byte() << endl;
-	cout << "\tmovzbl\t" << _expr->_register->byte() << ",\t" << _expr << endl;
-
-	assign(this, _expr->_register);
-}
-
-void Negate::generate(){
-	_expr->generate();
-
-	if(_expr->_register == nullptr){
-		load(_expr, getreg());
-	}
-
-	cout << "\tneg" << suffix(_expr) << _expr << endl;
-
-	assign(this, _expr->_register);
-}
-
-void Address::generate(){
-	_expr->generate();
-	Expression* child = _expr->isDereference();
-
-	if(child == nullptr){
-		if(_expr->_register == nullptr){
-			load(_expr, getreg()); //handle FP here?
-		}
-
-		cout << "\tlea" << suffix(_expr) << _expr << ",\t" << _expr << endl;
-	}
-	else{
-		assign(this, _expr->_register); //since p == &*p, do nothing
-	}
-}
-
-void Dereference::generate(){
-	if(_expr->lvalue() == false){
-		if(_expr->_register == nullptr){
-			load(_expr, getreg()); //handle FP here?
-		}
-
-		cout << "\tmov" << suffix(_expr) << "(" << _expr << "),\t" << _expr << endl;
-	}
-}
-
-
-
-
-
 void compare(Expression* result, Expression* left, Expression* right, string opcode){
 	left->generate();
 	right->generate();
@@ -547,14 +496,79 @@ void NotEqual::generate(){
 	compare(this, _left, _right, "setne");
 }
 
+void Not::generate(){
+	_expr->generate();
+
+	if(_expr->_register == nullptr){
+		load(_expr, getreg());
+	}
+
+	cout << "\tcmp" << suffix(_expr) << "$0,\t" << _expr << endl;
+	cout << "\tsete\t" << _expr->_register->byte() << endl;
+	cout << "\tmovzbl\t" << _expr->_register->byte() << ",\t" << _expr << endl;
+
+	assign(this, _expr->_register);
+}
+
+void Negate::generate(){
+	_expr->generate();
+
+	if(_expr->_register == nullptr){
+		load(_expr, getreg());
+	}
+
+	cout << "\tneg" << suffix(_expr) << _expr << endl;
+
+	assign(this, _expr->_register);
+}
+
+void Address::generate(){
+	_expr->generate();
+
+	Expression* child = _expr->isDereference();
+
+	if(_expr->_register == nullptr){
+		load(_expr, getreg()); //handle FP here?
+	}	
+
+	if(child == nullptr){
+		cout << "\tlea" << suffix(_expr) << _expr->_operand << ",\t" << _expr->_register << endl;
+		assign(this, _expr->_register);
+	}
+	else{
+		assign(this, _expr->_register); //since p == &*p, do nothing
+	}
+}
+
+void Dereference::generate(){
+	if(_expr->lvalue() == false){
+		if(_expr->_register == nullptr){
+			load(_expr, getreg()); //handle FP here?
+		}
+
+		cout << "\tmov" << suffix(_expr) << "(" << _expr << "),\t" << _expr << endl;
+	}
+}
+
 void String::generate(){
 	Label l;
-	stringstream ss;
+	stringstream ss, tmp;
+
+	//create a std::string for operand
+	tmp << l;
+	_operand = tmp.str();
+
+	//load the string into a register
+	//load(this, getreg());
 
 	//create a label for it and put it in the data_section vector for the future
 	ss << l << ":\t.asciz\t" << _value << endl;
 	data_section.push_back(ss.str());
 }
+
+
+
+
 
 
 
@@ -589,11 +603,6 @@ void Expression::test(const Label &label, bool ifTrue){
 
 	assign(this, nullptr);
 }
-
-
-
-
-
 
 
 
