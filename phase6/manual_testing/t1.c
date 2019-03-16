@@ -1,5 +1,5 @@
 int a, b;
-int *c;
+int *c, *d;
 
 /*
 int compare(void){
@@ -51,13 +51,14 @@ int assign(void){
 	a = a + 3;
 }
 */
-/*
+
+
 int deref_assign(void){
-	int *c;
-	c = a;
-	printf("%d", *c);
+	
+
+	*c = *d;
 }
-*/
+
 
 /*
 int iff(void){
@@ -67,7 +68,7 @@ int iff(void){
 }
 */
 
-
+/*
 int earlyReturn(void){
 	if(1){
 		return 1;
@@ -77,8 +78,4 @@ int earlyReturn(void){
 
 
 
-
-
-
-
-
+*/

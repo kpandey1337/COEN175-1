@@ -122,9 +122,9 @@ void Identifier::generate()
 
 
 	if (_symbol->_offset != 0)
-	ss << _symbol->_offset << "(%ebp)";
+		ss << _symbol->_offset << "(%ebp)";
 	else
-	ss << global_prefix << _symbol->name();
+		ss << global_prefix << _symbol->name();
 
 	_operand = ss.str();
 }
@@ -222,11 +222,15 @@ void Call::generate()
 
 void Assignment::generate()
 {	
+
+
 	Expression* child = _left->isDereference();
 
 	if(child == nullptr){
 		_left->generate();
 		_right->generate();
+
+		cout << "#Begin: Assignment" << endl;
 
 		if(_right->_register == nullptr)
 			load(_right, getreg()); //handle FP here?
@@ -239,8 +243,11 @@ void Assignment::generate()
 		_right->generate();
 		child->generate();
 
+		cout << "#Begin: Assignment" << endl;
+
 		if(_right->_register == nullptr)
 			load(_right, getreg()); //handle FP here?
+
 		if(child->_register == nullptr)
 			load(child, getreg());
 
@@ -248,8 +255,6 @@ void Assignment::generate()
 
 		assign(child, nullptr);
 	}
-
-
 
 }
 
@@ -563,6 +568,7 @@ void Negate::generate(){
 }
 
 void Address::generate(){
+	cout << "#Begin: Address" << endl;
 	if(_expr->isDereference() == nullptr){
 		_expr->generate();
 		assign(this, getreg());
@@ -577,13 +583,18 @@ void Address::generate(){
 }
 
 void Dereference::generate(){
-	if(_expr->lvalue() == false){
-		if(_expr->_register == nullptr){
-			load(_expr, getreg()); //handle FP here?
-		}
+	cout << "#Begin: Dereference" << endl;
 
-		cout << "\tmov" << suffix(_expr) << "(" << _expr << "),\t" << _expr << endl;
+	_expr->generate();
+
+	if(_expr->_register == nullptr){
+		load(_expr, getreg()); //handle FP here?
 	}
+
+	cout << "\tmov" << suffix(_expr) << "(" << _expr << "),\t" << _expr << endl;
+
+	assign(this, _expr->_register);
+
 }
 
 void String::generate(){
