@@ -1,0 +1,52 @@
+Part1:	(Front-end)	
+	
+	Phases of compilation
+	Lexical Analysis (scanning)
+		Is the process of reading the input program and grouping the characters into meaningful sequences called tokens
+
+	Syntax Analysis (parsing)
+		Is the process of determining the meaning of the well-formed input program (mostly semantic checking)
+
+	Semantic Analysis (static checking) 
+	Theory
+
+
+Part2:	(Back-end)
+	
+	Storage Allocation
+	Code Generation
+
+Part3: (Stuff He's Hinted At Asking)
+
+	How to go through a bottom-up parsing problem (3 columns, using pseudo-stack)
+		Bottom-up parsing prefers left-recursive (?) since it keeps the stack depth shallow
+
+	Given a definition (e.g {a**n b**n c**n | n>=0}) what is it? CFL, RL, ...?
+
+	Construct a Thompson's NFA given a Regex
+
+	Draw stack frames, assign offsets
+
+Part4: (Questions I have)
+
+	"{a**n b**n | k >= n >= 0} is regular." Why?
+
+	Floating Point:
+		Get return value
+		Load constants into .data
+		How do you get 0
+
+	How to represent IF-ELSE in a parse tree?
+
+	How to represent floating-point temporaries?
+
+	Is it correct to do FSTPL <the temporary> or instead use <the destination FP register>
+
+	
+
+
+
+
+
+
+
